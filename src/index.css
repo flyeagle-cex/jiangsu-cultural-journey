@@ -654,341 +654,220 @@
 }
 
 /* ================================================================
-   城市页环境动画层 V3
-   - 不改变既有排版，只在非首页页面背后增加流动水纹与城市浮游物
-   - 所有装饰 pointer-events:none，不影响点击/滚动
+   城市页环境氛围层 V4
+   - 保留原有 section 色板，不再铺设满屏动态水纹或章节色晕
+   - 中段只显示当前城市的低透明线稿，底部只保留两层流动水波
+   - 茉莉花限定为 3 朵（桌面）/ 2 朵（手机），全部不参与交互
    ================================================================ */
 
 .city-ambient-layer {
-  --ambient-water-major: #c1dddb;
-  --ambient-water-middle: #81b3a9;
-  --ambient-water-fine: #eac459;
-  --ambient-wave-a-opacity: 0.4;
-  --ambient-wave-b-opacity: 0.3;
-  --ambient-wave-c-opacity: 0.14;
-  --ambient-motif-strength: 1;
+  --ambient-line: #c1dddb;
   position: fixed;
   inset: 4rem 0 0;
   z-index: 5;
   overflow: hidden;
   pointer-events: none;
-  contain: strict;
-  opacity: 0.9;
+  contain: layout paint style;
 }
 
-.city-ambient-water,
-.city-ambient-shimmer,
-.city-ambient-section-tints,
-.city-ambient-motifs {
+.city-ambient-skyline {
   position: absolute;
-  inset: 0;
+  top: 42%;
+  left: 0;
+  width: 100%;
+  height: clamp(138px, 16vw, 220px);
+  color: var(--ambient-line);
+  opacity: 0.2;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 17%, #000 82%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 17%, #000 82%, transparent 100%);
 }
 
-.city-ambient-water {
-  width: 180%;
-  left: -40%;
-  background-color: currentColor;
-  -webkit-mask-position: 0 0;
-  -webkit-mask-repeat: repeat;
-  mask-position: 0 0;
-  mask-repeat: repeat;
-  transition: opacity 1.8s ease;
-  will-change: transform;
-}
-
-.city-ambient-section-tints > span {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 1.8s ease;
-}
-
-.city-ambient-section-tints > [data-section-tint="overview"] {
-  background:
-    radial-gradient(circle at 14% 28%, rgba(66, 118, 157, 0.22), transparent 22%),
-    radial-gradient(circle at 82% 70%, rgba(234, 196, 89, 0.08), transparent 20%);
-}
-
-.city-ambient-section-tints > [data-section-tint="nature"] {
-  background:
-    radial-gradient(circle at 16% 30%, rgba(129, 179, 169, 0.26), transparent 24%),
-    radial-gradient(circle at 84% 66%, rgba(193, 221, 219, 0.14), transparent 20%);
-}
-
-.city-ambient-section-tints > [data-section-tint="history"] {
-  background:
-    radial-gradient(circle at 18% 28%, rgba(214, 205, 190, 0.22), transparent 24%),
-    radial-gradient(circle at 80% 72%, rgba(137, 159, 176, 0.12), transparent 20%);
-}
-
-.city-ambient-section-tints > [data-section-tint="heritage"] {
-  background:
-    radial-gradient(circle at 16% 32%, rgba(179, 198, 187, 0.24), transparent 23%),
-    radial-gradient(circle at 84% 68%, rgba(129, 179, 169, 0.12), transparent 20%);
-}
-
-.city-ambient-section-tints > [data-section-tint="food"] {
-  background:
-    radial-gradient(circle at 18% 30%, rgba(240, 156, 119, 0.17), transparent 22%),
-    radial-gradient(circle at 82% 70%, rgba(214, 205, 190, 0.12), transparent 20%);
-}
-
-.city-ambient-section-tints > [data-section-tint="waterways"] {
-  background:
-    radial-gradient(circle at 15% 28%, rgba(66, 118, 157, 0.28), transparent 24%),
-    radial-gradient(circle at 84% 68%, rgba(129, 179, 169, 0.18), transparent 21%);
-}
-
-.city-ambient-layer[data-active-section="overview"] [data-section-tint="overview"],
-.city-ambient-layer[data-active-section="nature"] [data-section-tint="nature"],
-.city-ambient-layer[data-active-section="history"] [data-section-tint="history"],
-.city-ambient-layer[data-active-section="heritage"] [data-section-tint="heritage"],
-.city-ambient-layer[data-active-section="food"] [data-section-tint="food"],
-.city-ambient-layer[data-active-section="waterways"] [data-section-tint="waterways"] {
-  opacity: 1;
-}
-
-.city-ambient-water--one {
-  color: var(--ambient-water-major);
-  opacity: var(--ambient-wave-a-opacity);
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='900' height='220' viewBox='0 0 900 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='white' stroke-linecap='round'%3E%3Cpath d='M-40 72C90 18 176 128 302 73S518 10 642 75s206 70 310 15' stroke-opacity='.72' stroke-width='1.7'/%3E%3Cpath d='M-45 98C85 44 175 150 302 101S515 39 642 101s205 66 314 17' stroke-opacity='.48' stroke-width='1.2'/%3E%3Cpath d='M-35 156c128-48 218 52 342 5s210-60 332-3 208 62 318 14' stroke-opacity='.34' stroke-width='1'/%3E%3C/g%3E%3C/svg%3E");
-  -webkit-mask-size: 900px 220px;
-  mask-image: url("data:image/svg+xml,%3Csvg width='900' height='220' viewBox='0 0 900 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='white' stroke-linecap='round'%3E%3Cpath d='M-40 72C90 18 176 128 302 73S518 10 642 75s206 70 310 15' stroke-opacity='.72' stroke-width='1.7'/%3E%3Cpath d='M-45 98C85 44 175 150 302 101S515 39 642 101s205 66 314 17' stroke-opacity='.48' stroke-width='1.2'/%3E%3Cpath d='M-35 156c128-48 218 52 342 5s210-60 332-3 208 62 318 14' stroke-opacity='.34' stroke-width='1'/%3E%3C/g%3E%3C/svg%3E");
-  mask-size: 900px 220px;
-  animation: city-water-sheet-a 34s linear infinite;
-}
-
-.city-ambient-water--two {
-  top: 12%;
-  color: var(--ambient-water-middle);
-  opacity: var(--ambient-wave-b-opacity);
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='760' height='190' viewBox='0 0 760 190' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='white' stroke-linecap='round'%3E%3Cpath d='M-50 54c108-38 184 44 288 9s181-69 286-25 169 63 286 21' stroke-opacity='.58' stroke-width='1.35'/%3E%3Cpath d='M-50 84c105-34 181 47 287 12s184-68 289-27 169 64 284 25' stroke-opacity='.36' stroke-width='1'/%3E%3Cpath d='M-40 139c113-42 190 47 297 8s183-67 288-23 165 61 277 22' stroke-opacity='.26' stroke-width='.9'/%3E%3C/g%3E%3C/svg%3E");
-  -webkit-mask-size: 760px 190px;
-  mask-image: url("data:image/svg+xml,%3Csvg width='760' height='190' viewBox='0 0 760 190' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='white' stroke-linecap='round'%3E%3Cpath d='M-50 54c108-38 184 44 288 9s181-69 286-25 169 63 286 21' stroke-opacity='.58' stroke-width='1.35'/%3E%3Cpath d='M-50 84c105-34 181 47 287 12s184-68 289-27 169 64 284 25' stroke-opacity='.36' stroke-width='1'/%3E%3Cpath d='M-40 139c113-42 190 47 297 8s183-67 288-23 165 61 277 22' stroke-opacity='.26' stroke-width='.9'/%3E%3C/g%3E%3C/svg%3E");
-  mask-size: 760px 190px;
-  animation: city-water-sheet-b 24s linear infinite;
-}
-
-.city-ambient-water--three {
-  top: 38%;
-  color: var(--ambient-water-fine);
-  opacity: var(--ambient-wave-c-opacity);
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg width='1060' height='250' viewBox='0 0 1060 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='white' stroke-linecap='round'%3E%3Cpath d='M-80 82c158-58 259 69 414 10s258-105 414-44 251 91 405 36' stroke-opacity='.52' stroke-width='1.25'/%3E%3Cpath d='M-80 111c158-55 259 70 414 13s258-105 414-45 251 90 405 38' stroke-opacity='.28' stroke-width='.9'/%3E%3C/g%3E%3C/svg%3E");
-  -webkit-mask-size: 1060px 250px;
-  mask-image: url("data:image/svg+xml,%3Csvg width='1060' height='250' viewBox='0 0 1060 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='white' stroke-linecap='round'%3E%3Cpath d='M-80 82c158-58 259 69 414 10s258-105 414-44 251 91 405 36' stroke-opacity='.52' stroke-width='1.25'/%3E%3Cpath d='M-80 111c158-55 259 70 414 13s258-105 414-45 251 90 405 38' stroke-opacity='.28' stroke-width='.9'/%3E%3C/g%3E%3C/svg%3E");
-  mask-size: 1060px 250px;
-  animation: city-water-sheet-c 42s linear infinite;
-}
-
-.city-ambient-shimmer {
-  color: var(--ambient-accent);
-  opacity: 0.22;
-  background:
-    radial-gradient(circle at 12% 28%, color-mix(in srgb, currentColor 30%, transparent), transparent 18%),
-    radial-gradient(circle at 86% 58%, color-mix(in srgb, var(--ambient-secondary) 24%, transparent), transparent 17%),
-    radial-gradient(circle at 55% 84%, rgba(234, 241, 249, 0.09), transparent 20%);
-  animation: city-water-breathe 12s ease-in-out infinite alternate;
-  transition: opacity 1.8s ease;
-}
-
-.city-ambient-motif {
-  position: absolute;
-  display: grid;
-  place-items: center;
-  opacity: calc(0.24 * var(--ambient-motif-strength));
-  color: var(--ambient-accent);
-  transition: opacity 1.8s ease;
-  will-change: transform;
-  transform-origin: center;
-}
-
-.city-ambient-motif:nth-child(even) {
-  color: var(--ambient-secondary);
-  opacity: calc(0.2 * var(--ambient-motif-strength));
-}
-
-.city-ambient-motif:nth-child(3n) {
-  opacity: calc(0.16 * var(--ambient-motif-strength));
-}
-
-.city-ambient-motif svg {
+.city-ambient-skyline svg {
+  display: block;
   width: 100%;
   height: 100%;
   overflow: visible;
-  animation: city-motif-tide 11s ease-in-out infinite alternate;
 }
 
-.city-ambient-motif.ambient-float-a {
-  animation-name: city-motif-float-a;
+.city-ambient-bottom,
+.city-ambient-flowers {
+  position: absolute;
+  inset: auto 0 0;
+  width: 100%;
+  height: clamp(118px, 13vw, 182px);
+}
+
+.city-ambient-bottom {
+  overflow: visible;
+}
+
+.city-ambient-wave {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  display: block;
+  width: 200%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  will-change: transform;
+}
+
+.city-ambient-wave path {
+  vector-effect: non-scaling-stroke;
+}
+
+.city-ambient-wave--back {
+  stroke: rgba(234, 241, 249, 0.38);
+  stroke-width: 2.1;
+  opacity: 0.72;
+  animation: city-bottom-wave-back 31s linear infinite;
+}
+
+.city-ambient-wave--front {
+  stroke: rgba(193, 221, 219, 0.48);
+  stroke-width: 2.8;
+  opacity: 0.92;
+  animation: city-bottom-wave-front 22s linear infinite;
+}
+
+.city-ambient-flower {
+  position: absolute;
+  display: block;
+  opacity: 0.43;
+  transform-origin: center;
+  will-change: transform;
+  animation-name: city-jasmine-drift;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
   animation-direction: alternate;
 }
 
-.city-ambient-motif.ambient-float-b {
-  animation-name: city-motif-float-b;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
+.city-ambient-flower:nth-child(2) {
+  opacity: 0.34;
   animation-direction: alternate-reverse;
 }
 
-.city-ambient-motif.ambient-float-c {
-  animation-name: city-motif-float-c;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
+.city-ambient-flower:nth-child(3) {
+  opacity: 0.38;
 }
 
-/* 茉莉使用暖白线稿；城市意象继续使用各城色值。 */
-.city-ambient-motif[data-motif-kind="jasmine"] {
-  color: #f5f2e8;
-  opacity: calc(0.24 * var(--ambient-motif-strength));
+.city-ambient-flower svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 
-.city-ambient-layer .city-ambient-motif:first-child {
-  opacity: calc(0.32 * var(--ambient-motif-strength));
+@keyframes city-bottom-wave-front {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
 }
 
-/* 当前章节只改变水色与强度，1.8 秒内平滑过渡，不改变六种主体色板。 */
-.city-ambient-layer[data-active-section="overview"] {
-  --ambient-water-major: #c1dddb;
-  --ambient-water-middle: #42769d;
-  --ambient-wave-a-opacity: 0.4;
-  --ambient-wave-b-opacity: 0.29;
-  --ambient-wave-c-opacity: 0.14;
+@keyframes city-bottom-wave-back {
+  from {
+    transform: translate3d(-50%, 5px, 0);
+  }
+
+  to {
+    transform: translate3d(0, -3px, 0);
+  }
 }
 
-.city-ambient-layer[data-active-section="nature"] {
-  --ambient-water-major: #c1dddb;
-  --ambient-water-middle: #81b3a9;
-  --ambient-wave-a-opacity: 0.44;
-  --ambient-wave-b-opacity: 0.34;
-  --ambient-wave-c-opacity: 0.13;
+@keyframes city-jasmine-drift {
+  0% {
+    transform: translate3d(-14px, 3px, 0) rotate(-4deg);
+  }
+
+  42% {
+    transform: translate3d(10px, -5px, 0) rotate(1deg);
+  }
+
+  100% {
+    transform: translate3d(34px, 4px, 0) rotate(5deg);
+  }
 }
 
-.city-ambient-layer[data-active-section="history"] {
-  --ambient-water-major: #d6cdbe;
-  --ambient-water-middle: #899fb0;
-  --ambient-wave-a-opacity: 0.34;
-  --ambient-wave-b-opacity: 0.25;
-  --ambient-wave-c-opacity: 0.11;
-  --ambient-motif-strength: 0.88;
-}
+@media (min-width: 1920px) {
+  .city-ambient-skyline {
+    top: 41%;
+    height: 230px;
+  }
 
-.city-ambient-layer[data-active-section="heritage"] {
-  --ambient-water-major: #c1dddb;
-  --ambient-water-middle: #b3c6bb;
-  --ambient-wave-a-opacity: 0.38;
-  --ambient-wave-b-opacity: 0.29;
-  --ambient-wave-c-opacity: 0.12;
-  --ambient-motif-strength: 0.94;
-}
-
-.city-ambient-layer[data-active-section="food"] {
-  --ambient-water-major: #d6cdbe;
-  --ambient-water-middle: #f09c77;
-  --ambient-wave-a-opacity: 0.36;
-  --ambient-wave-b-opacity: 0.25;
-  --ambient-wave-c-opacity: 0.12;
-  --ambient-motif-strength: 1.04;
-}
-
-.city-ambient-layer[data-active-section="waterways"] {
-  --ambient-water-major: #c1dddb;
-  --ambient-water-middle: #81b3a9;
-  --ambient-wave-a-opacity: 0.46;
-  --ambient-wave-b-opacity: 0.35;
-  --ambient-wave-c-opacity: 0.15;
-  --ambient-motif-strength: 0.96;
-}
-
-@keyframes city-water-sheet-a {
-  0% { transform: translate3d(0, -1%, 0); }
-  50% { transform: translate3d(-450px, 1%, 0); }
-  100% { transform: translate3d(-900px, -1%, 0); }
-}
-
-@keyframes city-water-sheet-b {
-  0% { transform: translate3d(-760px, 0, 0) scaleY(1); }
-  50% { transform: translate3d(-380px, -1.5%, 0) scaleY(1.015); }
-  100% { transform: translate3d(0, 0, 0) scaleY(1); }
-}
-
-@keyframes city-water-sheet-c {
-  0% { transform: translate3d(0, 0, 0); }
-  50% { transform: translate3d(-530px, 1.2%, 0); }
-  100% { transform: translate3d(-1060px, 0, 0); }
-}
-
-@keyframes city-water-breathe {
-  0% { transform: scale(0.995); opacity: 0.18; }
-  100% { transform: scale(1.012); opacity: 0.3; }
-}
-
-@keyframes city-motif-float-a {
-  0% { transform: translate3d(-10px, 7px, 0) rotate(-3deg); }
-  38% { transform: translate3d(14px, -9px, 0) rotate(1deg); }
-  72% { transform: translate3d(29px, 4px, 0) rotate(4deg); }
-  100% { transform: translate3d(43px, -13px, 0) rotate(6deg); }
-}
-
-@keyframes city-motif-float-b {
-  0% { transform: translate3d(11px, -5px, 0) rotate(4deg); }
-  40% { transform: translate3d(-14px, 12px, 0) rotate(0deg); }
-  74% { transform: translate3d(-31px, -7px, 0) rotate(-3deg); }
-  100% { transform: translate3d(-47px, 15px, 0) rotate(-6deg); }
-}
-
-@keyframes city-motif-float-c {
-  0% { transform: translate3d(-6px, -11px, 0) rotate(-2deg); }
-  34% { transform: translate3d(13px, 9px, 0) rotate(3deg); }
-  67% { transform: translate3d(28px, -6px, 0) rotate(-3deg); }
-  100% { transform: translate3d(44px, 14px, 0) rotate(5deg); }
-}
-
-@keyframes city-motif-tide {
-  0% { opacity: 0.72; }
-  100% { opacity: 1; }
+  .city-ambient-bottom,
+  .city-ambient-flowers {
+    height: 190px;
+  }
 }
 
 @media (max-width: 900px) {
-  .city-ambient-layer {
+  .city-ambient-skyline {
+    top: 45%;
+    height: 132px;
+    opacity: 0.14;
+  }
+
+  .city-ambient-bottom,
+  .city-ambient-flowers {
+    height: 112px;
+  }
+
+  .city-ambient-wave--front {
+    stroke-width: 2.3;
     opacity: 0.76;
   }
 
-  .city-ambient-motif {
-    opacity: 0.16;
-  }
-
-  .city-ambient-motif:nth-child(n + 5) {
-    display: none;
+  .city-ambient-wave--back {
+    stroke-width: 1.7;
+    opacity: 0.56;
   }
 }
 
 @media (max-width: 639px) {
-  .city-ambient-layer {
-    inset: 4rem 0 0;
+  .city-ambient-skyline {
+    display: none;
+  }
+
+  .city-ambient-bottom,
+  .city-ambient-flowers {
+    height: 94px;
+  }
+
+  .city-ambient-flower[data-flower-index="1"] {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .city-ambient-flower[data-flower-index="2"] {
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  .city-ambient-flower[data-flower-index="3"] {
+    display: none;
+  }
+
+  .city-ambient-wave--front {
+    stroke-width: 2;
     opacity: 0.68;
   }
 
-  .city-ambient-water--three {
-    display: none;
-  }
-
-  .city-ambient-motif:nth-child(n + 4) {
-    display: none;
+  .city-ambient-wave--back {
+    stroke-width: 1.4;
+    opacity: 0.46;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .city-ambient-water,
-  .city-ambient-shimmer,
-  .city-ambient-motif,
-  .city-ambient-motif svg {
+  .city-ambient-wave,
+  .city-ambient-flower {
     animation: none !important;
-  }
-
-  .city-ambient-motif {
-    opacity: 0.12;
+    transform: none !important;
+    will-change: auto;
   }
 }

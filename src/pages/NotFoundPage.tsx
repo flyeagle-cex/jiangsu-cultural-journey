@@ -37,7 +37,6 @@ export function NotFoundPage() {
           width="1920"
         />
         <div aria-hidden="true" className="city-not-found__wash absolute inset-0 -z-20" />
-        <div aria-hidden="true" className="deep-water-currents opacity-65" />
 
         <div className="relative z-10 mx-auto grid min-h-[calc(100vh-4rem)] max-w-[1440px] content-center gap-14 px-4 py-20 sm:px-6 lg:grid-cols-12 lg:gap-10 lg:px-10">
           <div className="lg:col-span-8">
