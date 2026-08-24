@@ -29,10 +29,7 @@ export function CityAnchorNav({ city }: { city: City }) {
   }, [city.slug]);
 
   return (
-    <div
-      className="sticky top-16 z-30 border-y border-[#c1dddb]/30 bg-[#42769d]/95 backdrop-blur-md"
-      data-city-anchor-nav="true"
-    >
+    <div className="city-anchor-nav sticky top-16 z-30 border-y backdrop-blur-md" data-city-anchor-nav="true">
       <div className="mx-auto flex max-w-[1440px] items-stretch px-4 sm:px-6 lg:px-10">
         <div className="hidden shrink-0 items-center gap-3 border-r border-[#c1dddb]/25 pr-6 lg:flex">
           <span className="text-xs font-semibold tabular-nums text-primary">
@@ -50,16 +47,15 @@ export function CityAnchorNav({ city }: { city: City }) {
               <a
                 aria-current={isActive ? "location" : undefined}
                 className={cn(
-                  "flex min-h-12 shrink-0 items-center border-b-2 px-4 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
-                  isActive
-                    ? "border-primary text-primary"
-                    : "border-transparent text-foreground/[0.78] hover:text-[#eaf1f9]",
+                  "city-anchor-link flex min-h-12 shrink-0 items-center border-b-2 px-4 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+                  isActive ? "city-anchor-link--active" : "city-anchor-link--idle",
                 )}
+                data-anchor-section={id}
                 href={`#city-${id}`}
                 key={id}
                 onClick={() => setActiveSection(id)}
               >
-                <span className="mr-2 text-[10px] tabular-nums text-primary/70">
+                <span className="city-anchor-index mr-2 text-[10px] tabular-nums">
                   {String(index + 1).padStart(2, "0")}
                 </span>
                 {CITY_SECTION_LABELS[id][language]}

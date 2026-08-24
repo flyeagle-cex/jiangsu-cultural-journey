@@ -15,13 +15,13 @@ function CityRouteLoading() {
   const { language } = useLanguage();
 
   return (
-    <main className="city-archive-field relative grid min-h-screen place-items-center overflow-hidden px-6 pt-16 text-foreground" id="main-content">
+    <main className="city-route-loading relative grid min-h-screen place-items-center overflow-hidden px-6 pt-16 text-foreground" id="main-content">
       <div aria-hidden="true" className="deep-water-currents opacity-60" />
-      <div className="relative border-y border-white/[0.14] px-10 py-8 text-center">
+      <div className="city-route-loading__card relative border-y px-10 py-8 text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
           {language === "zh" ? "江苏城市水志" : "Jiangsu city water atlas"}
         </p>
-        <p className="mt-3 text-sm text-foreground/70" role="status">
+        <p className="mt-3 text-sm text-[#eaf1f9]/80" role="status">
           {language === "zh" ? "正在载入城市文化资料…" : "Loading the city archive…"}
         </p>
       </div>

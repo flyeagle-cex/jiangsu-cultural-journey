@@ -37,11 +37,11 @@ export default function CityPage() {
             <CityCultureSection city={city} index={index} key={section.id} section={section} />
           ))}
 
-          <div className="grid gap-3 border-b border-[#c1dddb]/[0.28] py-10 sm:grid-cols-[12rem_1fr] sm:items-start sm:py-12">
+          <div className="city-archive-note grid gap-3 border-b py-10 sm:grid-cols-[12rem_1fr] sm:items-start sm:py-12">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
               {language === "zh" ? "资料说明" : "Archive note"}
             </p>
-            <p className="max-w-[68ch] text-sm leading-6 text-[#eaf1f9]/[0.88]">
+            <p className="max-w-[68ch] text-sm leading-6 text-[#eef5fb]/[0.88]">
               {language === "zh"
                 ? `资料来源：江苏十三市文化资料库 · ${city.name.zh}篇。`
                 : `Source: Jiangsu Thirteen-City Cultural Archive · ${city.name.en}.`}

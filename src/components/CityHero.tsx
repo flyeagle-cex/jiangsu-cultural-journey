@@ -21,14 +21,14 @@ export function CityHero({ city }: { city: City }) {
     >
       <img
         alt={visual.alt[language]}
-        className="hero-water-image absolute inset-0 -z-30 size-full object-cover"
+        className="hero-water-image city-hero-image absolute inset-0 -z-30 size-full object-cover"
         fetchPriority="high"
         height="1080"
         src={visual.src}
         style={{ objectPosition: visual.objectPosition }}
         width="1920"
       />
-      <div aria-hidden="true" className="absolute inset-0 -z-20 bg-[#5e6c82]/[0.88]" />
+      <div aria-hidden="true" className="city-hero-colorwash absolute inset-0 -z-20" />
       <div aria-hidden="true" className="deep-water-currents opacity-55" />
 
       <div className="mx-auto flex min-h-[656px] max-w-[1440px] flex-col px-4 pb-14 pt-9 sm:min-h-[716px] sm:px-6 sm:pb-16 lg:px-10 lg:pt-11">
@@ -57,34 +57,34 @@ export function CityHero({ city }: { city: City }) {
               {language === "zh" ? "江苏城市水志" : "Jiangsu city water atlas"} ·{" "}
               {String(city.order).padStart(2, "0")} / 13
             </p>
-            <h1 className="mt-7 font-display text-[clamp(4.1rem,9vw,8.4rem)] font-semibold leading-[0.88] tracking-[-0.05em] text-[#eaf1f9]">
+            <h1 className="mt-7 font-display text-[clamp(4.1rem,9vw,8.4rem)] font-semibold leading-[0.88] tracking-[-0.05em] text-[#f3f8fc]">
               {city.name[language]}
             </h1>
             <p className="mt-5 font-display text-[clamp(1.55rem,3vw,2.8rem)] font-light leading-none tracking-[-0.025em] text-primary">
               {city.name[secondaryLanguage]}
             </p>
-            <p className="mt-8 text-lg font-semibold leading-8 text-[#eaf1f9] sm:text-xl">
+            <p className="mt-8 text-lg font-semibold leading-8 text-[#f3f8fc] sm:text-xl">
               {city.tagline[language]}
             </p>
-            <p className="mt-4 max-w-[66ch] text-base leading-7 text-[#eaf1f9]/[0.92] sm:text-lg sm:leading-8">
+            <p className="mt-4 max-w-[66ch] text-base leading-7 text-[#eef5fb]/[0.94] sm:text-lg sm:leading-8">
               {resolveText(city.summary, language)}
             </p>
           </div>
 
-          <aside className="atlas-index-rule grid gap-5 pl-5 sm:grid-cols-3 lg:col-span-3 lg:col-start-10 lg:block lg:pl-6">
+          <aside className="atlas-index-rule city-hero-index grid gap-5 pl-5 sm:grid-cols-3 lg:col-span-3 lg:col-start-10 lg:block lg:pl-6">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
                 {language === "zh" ? "城市序号" : "City index"}
               </p>
-              <p className="mt-2 font-display text-3xl font-light tabular-nums text-[#eaf1f9]">
-                {String(city.order).padStart(2, "0")} <span className="text-base text-foreground/50">/ 13</span>
+              <p className="mt-2 font-display text-3xl font-light tabular-nums text-[#f3f8fc]">
+                {String(city.order).padStart(2, "0")} <span className="text-base text-[#dce7ef]/60">/ 13</span>
               </p>
             </div>
             <div className="lg:mt-8">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
                 {language === "zh" ? "地理坐标" : "Coordinates"}
               </p>
-              <p className="mt-2 text-sm tabular-nums text-[#eaf1f9]/90">
+              <p className="mt-2 text-sm tabular-nums text-[#eef5fb]/90">
                 {latitude.toFixed(2)}°N · {longitude.toFixed(2)}°E
               </p>
             </div>
