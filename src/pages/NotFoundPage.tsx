@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Map } from "lucide-react";
 
+import { CityAmbientLayer } from "@/components/CityAmbientLayer";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/context/LanguageContext";
@@ -26,6 +27,7 @@ export function NotFoundPage() {
         className="city-not-found relative isolate min-h-[calc(100vh-4rem)] overflow-hidden bg-background pt-16 text-foreground"
         id="main-content"
       >
+        <CityAmbientLayer />
         <img
           alt=""
           aria-hidden="true"
@@ -37,7 +39,7 @@ export function NotFoundPage() {
         <div aria-hidden="true" className="city-not-found__wash absolute inset-0 -z-20" />
         <div aria-hidden="true" className="deep-water-currents opacity-65" />
 
-        <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-[1440px] content-center gap-14 px-4 py-20 sm:px-6 lg:grid-cols-12 lg:gap-10 lg:px-10">
+        <div className="relative z-10 mx-auto grid min-h-[calc(100vh-4rem)] max-w-[1440px] content-center gap-14 px-4 py-20 sm:px-6 lg:grid-cols-12 lg:gap-10 lg:px-10">
           <div className="lg:col-span-8">
             <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
               <span aria-hidden="true" className="h-px w-12 bg-primary/60" />

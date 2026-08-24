@@ -101,7 +101,7 @@ export function CityCultureSection({ city, index, section }: CityCultureSectionP
                 >
                   <img
                     alt={visual.alt[language]}
-                    className="atlas-media-image city-section-image absolute inset-0 size-full object-cover opacity-95 transition duration-200 hover:scale-[1.008] hover:opacity-100"
+                    className="atlas-media-image city-section-image absolute inset-0 size-full object-cover opacity-95 transition-opacity duration-200 hover:opacity-100"
                     height="1100"
                     loading="lazy"
                     src={visual.src}

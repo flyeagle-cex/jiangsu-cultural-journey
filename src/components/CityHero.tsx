@@ -16,7 +16,7 @@ export function CityHero({ city }: { city: City }) {
 
   return (
     <section
-      className="relative isolate min-h-[720px] overflow-hidden bg-background pt-16 sm:min-h-[780px]"
+      className="relative z-10 isolate min-h-[720px] overflow-hidden bg-background pt-16 sm:min-h-[780px]"
       data-city-hero={city.slug}
     >
       <img

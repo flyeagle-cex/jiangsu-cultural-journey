@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 
+import { CityAmbientLayer } from "@/components/CityAmbientLayer";
 import { Navbar } from "@/components/Navbar";
 import { ScrollManager } from "@/components/ScrollManager";
 import { ShuiLingGuide } from "@/components/ShuiLingGuide";
@@ -16,8 +17,9 @@ function CityRouteLoading() {
 
   return (
     <main className="city-route-loading relative grid min-h-screen place-items-center overflow-hidden px-6 pt-16 text-foreground" id="main-content">
+      <CityAmbientLayer />
       <div aria-hidden="true" className="deep-water-currents opacity-60" />
-      <div className="city-route-loading__card relative border-y px-10 py-8 text-center">
+      <div className="city-route-loading__card relative z-10 border-y px-10 py-8 text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
           {language === "zh" ? "江苏城市水志" : "Jiangsu city water atlas"}
         </p>

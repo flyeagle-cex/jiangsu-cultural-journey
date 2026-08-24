@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 
+import { CityAmbientLayer } from "@/components/CityAmbientLayer";
 import { CityAnchorNav } from "@/components/CityAnchorNav";
 import { CityCultureSection } from "@/components/CityCultureSection";
 import { CityHero } from "@/components/CityHero";
@@ -30,9 +31,10 @@ export default function CityPage() {
   return (
     <>
       <main className="city-archive-field text-foreground" data-city-page={city.slug} id="main-content">
+        <CityAmbientLayer citySlug={city.slug} />
         <CityHero city={city} />
         <CityAnchorNav city={city} />
-        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10">
+        <div className="relative z-10 mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10">
           {city.sections.map((section, index) => (
             <CityCultureSection city={city} index={index} key={section.id} section={section} />
           ))}
