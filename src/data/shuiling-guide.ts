@@ -15,11 +15,17 @@ export type ShuiLingGuideAction = {
   status?: BilingualText;
 };
 
-export const SHUILING_ASSETS = {
+export type ShuiLingAssets = {
+  avatar: string;
+  poster: string;
+  welcomeVideo: string | null;
+};
+
+export const SHUILING_ASSETS: ShuiLingAssets = {
   avatar: "/assets/shuiling/shuiling-avatar.webp",
   poster: "/assets/shuiling/shuiling-guide-poster.webp",
-  video: "/assets/shuiling/shuiling-guide.mp4",
-} as const;
+  welcomeVideo: null,
+};
 
 export const SHUILING_COPY = {
   name: { zh: "水灵 · 江苏数字文化向导", en: "Shuiling · Jiangsu Cultural Guide" },

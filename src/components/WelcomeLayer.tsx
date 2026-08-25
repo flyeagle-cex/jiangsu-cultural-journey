@@ -39,6 +39,7 @@ export function WelcomeLayer({ onVisibilityChange }: WelcomeLayerProps) {
   const navigate = useNavigate();
   const reduceMotion = useReducedMotion();
   const [visible, setVisible] = useState(() => location.pathname === "/" && !hasSeenShuiLingWelcome());
+  const [videoFailed, setVideoFailed] = useState(false);
   const startButtonRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
@@ -50,10 +51,7 @@ export function WelcomeLayer({ onVisibilityChange }: WelcomeLayerProps) {
   const startExploring = useCallback(() => {
     dismiss();
     navigate("/#cities");
-    window.requestAnimationFrame(() => {
-      document.getElementById("cities")?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
-    });
-  }, [dismiss, navigate, reduceMotion]);
+  }, [dismiss, navigate]);
 
   useEffect(() => {
     if (location.pathname !== "/") {
@@ -62,6 +60,10 @@ export function WelcomeLayer({ onVisibilityChange }: WelcomeLayerProps) {
     }
     if (!hasSeenShuiLingWelcome()) setVisible(true);
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (visible) setVideoFailed(false);
+  }, [visible]);
 
   useEffect(() => {
     const replay = () => {
@@ -129,17 +131,30 @@ export function WelcomeLayer({ onVisibilityChange }: WelcomeLayerProps) {
               initial={{ opacity: reduceMotion ? 1 : 0, y: reduceMotion ? 0 : 24, scale: reduceMotion ? 1 : 0.985 }}
               transition={{ delay: reduceMotion ? 0 : 0.58, duration: 0.58, ease: "easeOut" }}
             >
-              <video
-                aria-hidden="true"
-                autoPlay
-                className="size-full object-cover"
-                loop
-                muted
-                playsInline
-                poster={SHUILING_ASSETS.poster}
-                preload="metadata"
-                src={SHUILING_ASSETS.video}
-              />
+              {SHUILING_ASSETS.welcomeVideo && !reduceMotion && !videoFailed ? (
+                <video
+                  aria-hidden="true"
+                  autoPlay
+                  className="size-full object-cover"
+                  loop
+                  muted
+                  onError={() => setVideoFailed(true)}
+                  playsInline
+                  poster={SHUILING_ASSETS.poster}
+                  preload="metadata"
+                  src={SHUILING_ASSETS.welcomeVideo}
+                />
+              ) : (
+                <img
+                  alt=""
+                  aria-hidden="true"
+                  className="size-full object-cover"
+                  decoding="async"
+                  height="960"
+                  src={SHUILING_ASSETS.poster}
+                  width="540"
+                />
+              )}
               <div aria-hidden="true" className="welcome-layer__portrait-wash" />
             </motion.div>
 

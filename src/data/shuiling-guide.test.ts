@@ -10,8 +10,8 @@ import {
 import { CITY_SECTION_ORDER } from "@/types/city";
 
 describe("Shuiling guide configuration", () => {
-  it("uses the supplied Shuiling media paths", () => {
-    expect(SHUILING_ASSETS.video).toMatch(/shuiling-guide\.mp4$/);
+  it("uses the supplied Shuiling media paths without auto-loading a city-specific video", () => {
+    expect(SHUILING_ASSETS.welcomeVideo).toBeNull();
     expect(SHUILING_ASSETS.poster).toMatch(/shuiling-guide-poster\.webp$/);
     expect(SHUILING_ASSETS.avatar).toMatch(/shuiling-avatar\.webp$/);
   });

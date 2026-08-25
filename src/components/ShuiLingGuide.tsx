@@ -324,7 +324,10 @@ export function ShuiLingGuide({ citySlug, hidden = false, mode = "guide", onAskA
         aria-expanded={open}
         aria-label={language === "zh" ? "打开水灵导览" : "Open Shuiling guide"}
         className="shuiling-guide__trigger group relative block rounded-full outline-none"
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => {
+          if (open) closePanel();
+          else setOpen(true);
+        }}
         ref={triggerRef}
         type="button"
       >
