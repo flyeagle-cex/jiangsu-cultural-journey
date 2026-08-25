@@ -52,6 +52,39 @@ const waterwaysResult = createRetrievalResult({
 
 const currentProject = creativeManifest[0];
 
+const genericCreativeQueries = [
+  "有什么文创？",
+  "你们有什么文创！",
+  "有哪些文创？",
+  "你们有哪些文创？",
+  "想找一件伴手礼",
+  "想看看伴手礼",
+  "有什么伴手礼？",
+  "有哪些伴手礼？",
+  "有什么纪念品？",
+  "有哪些纪念品？",
+  "想看看纪念品",
+  "有什么周边？",
+  "有哪些周边？",
+  "想看看周边",
+  "有什么礼物？",
+  "有哪些礼物？",
+  "想找一件礼物",
+  "有什么礼品？",
+  "有哪些礼品？",
+  "What creative products are available?",
+  "Do you have any creative products?",
+  "Do you have any souvenirs?",
+  "What souvenirs are available?",
+  "I'd like a souvenir",
+  "I want a souvenir",
+  "Do you have any gifts?",
+  "What gifts are available?",
+  "I'd like a gift",
+  "Do you have any merchandise?",
+  "What merchandise is available?",
+] as const;
+
 describe("deterministic creative recommendations", () => {
   it.each([
     "你们有什么文创",
@@ -62,14 +95,20 @@ describe("deterministic creative recommendations", () => {
     expect(hasExplicitCreativeIntent(question)).toBe(true);
   });
 
-  it.each([
-    "有什么文创？",
-    "你们有什么文创？",
-    "有哪些文创？",
-    "What creative products are available?",
-  ])("recognizes a generic manifest lookup: %s", (question) => {
+  it.each(genericCreativeQueries)("recognizes a generic manifest lookup: %s", (question) => {
     expect(isCreativeManifestLookup(question)).toBe(true);
   });
+
+  it.each(genericCreativeQueries)(
+    "recommends published work for a generic manifest lookup: %s",
+    (question) => {
+      expect(
+        recommendCreativeProjects({ question, retrievalResults: [] }).map(
+          (recommendation) => recommendation.project.slug,
+        ),
+      ).toEqual(["water-spirit-global-voyage"]);
+    },
+  );
 
   it.each([
     "江苏非遗有什么文创？",
@@ -79,6 +118,14 @@ describe("deterministic creative recommendations", () => {
     "苏州有什么文创？",
     "火星有什么文创？",
     "Python 有什么文创？",
+    "苏州有什么伴手礼？",
+    "火星有什么伴手礼？",
+    "火星有什么纪念品？",
+    "Python 有什么周边？",
+    "机器学习有什么礼物？",
+    "江苏非遗有什么纪念品？",
+    "江苏美食有什么伴手礼？",
+    "江苏历史有什么周边？",
   ])("does not treat a constrained creative query as a manifest lookup: %s", (question) => {
     expect(isCreativeManifestLookup(question)).toBe(false);
   });
@@ -179,6 +226,45 @@ describe("deterministic creative recommendations", () => {
   );
 
   it.each([
+    "苏州有什么伴手礼？",
+    "火星有什么伴手礼？",
+    "火星有什么纪念品？",
+    "Python 有什么周边？",
+    "机器学习有什么礼物？",
+  ])("does not recommend the current project for a constrained generic-product query: %s", (question) => {
+    expect(recommendCreativeProjects({ question, retrievalResults: [] })).toEqual([]);
+  });
+
+  it.each([
+    {
+      question: "江苏非遗有什么纪念品？",
+      result: createRetrievalResult({
+        section: "heritage",
+        title: "江苏非遗技艺",
+        content: "江苏非遗包含传统技艺、民俗与表演艺术。",
+      }),
+    },
+    {
+      question: "江苏美食有什么伴手礼？",
+      result: createRetrievalResult({
+        section: "food",
+        title: "江苏特色美食",
+        content: "江苏各地形成了丰富多样的饮食文化。",
+      }),
+    },
+    {
+      question: "江苏历史有什么周边？",
+      result: createRetrievalResult({
+        section: "history",
+        title: "江苏历史文化",
+        content: "江苏历史文化源远流长，留下众多历史遗存。",
+      }),
+    },
+  ])("does not recommend the water project for a constrained product query: $question", ({ question, result }) => {
+    expect(recommendCreativeProjects({ question, retrievalResults: [result] })).toEqual([]);
+  });
+
+  it.each([
     {
       question: "南京有什么历史？",
       result: createRetrievalResult({
@@ -253,7 +339,7 @@ describe("deterministic creative recommendations", () => {
       sortOrder: 2,
     };
     const recommendations = recommendCreativeProjects({
-      question: "苏州有什么文创？",
+      question: "苏州有什么伴手礼？",
       retrievalResults: [],
       projects: [currentProject, suzhouProject],
     });
