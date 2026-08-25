@@ -178,6 +178,13 @@ describe("Stage 7B hybrid local retrieval", () => {
     expect(response.scope.citySlugs).toEqual(["wuxi"]);
     expect(response.results.length).toBeGreaterThan(0);
     expect(topThree(response).some((result) => result.chunk.section === "food")).toBe(true);
+    expect(
+      topThree(response).some(
+        (result) =>
+          result.chunk.section === "food" &&
+          /甜|饮食|美食/u.test(`${result.chunk.title} ${result.chunk.content}`),
+      ),
+    ).toBe(true);
   });
 
   it("retrieves Nanjing food for a concise eating query", async () => {
