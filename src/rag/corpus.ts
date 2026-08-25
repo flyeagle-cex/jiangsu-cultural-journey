@@ -17,20 +17,48 @@ async function fetchJson<T>(url: string, fetcher: Fetcher): Promise<T> {
   return (await response.json()) as T;
 }
 
+export function knowledgeUrl(path: string, baseUrl = import.meta.env.BASE_URL) {
+  const normalizedBase = `/${baseUrl ?? ""}/`.replace(/\/{2,}/gu, "/");
+  const normalizedPath = path.replace(/^\/+|\/+$/gu, "");
+  return `${normalizedBase}knowledge/${normalizedPath}`;
+}
+
 export function getKnowledgeManifest(fetcher: Fetcher = fetch) {
-  manifestRequest ??= fetchJson<KnowledgeManifest>("/knowledge/manifest.json", fetcher);
+  if (!manifestRequest) {
+    const request = fetchJson<KnowledgeManifest>(knowledgeUrl("manifest.json"), fetcher).catch(
+      (error: unknown) => {
+        if (manifestRequest === request) manifestRequest = null;
+        throw error;
+      },
+    );
+    manifestRequest = request;
+  }
   return manifestRequest;
 }
 
 export function getAllKnowledgeChunks(fetcher: Fetcher = fetch) {
-  allChunksRequest ??= fetchJson<KnowledgeChunk[]>("/knowledge/corpus.json", fetcher);
+  if (!allChunksRequest) {
+    const request = fetchJson<KnowledgeChunk[]>(knowledgeUrl("corpus.json"), fetcher).catch(
+      (error: unknown) => {
+        if (allChunksRequest === request) allChunksRequest = null;
+        throw error;
+      },
+    );
+    allChunksRequest = request;
+  }
   return allChunksRequest;
 }
 
 export function getCityKnowledgeChunks(citySlug: CitySlug, fetcher: Fetcher = fetch) {
   const existing = cityRequests.get(citySlug);
   if (existing) return existing;
-  const request = fetchJson<KnowledgeChunk[]>(`/knowledge/cities/${citySlug}.json`, fetcher);
+  const request = fetchJson<KnowledgeChunk[]>(
+    knowledgeUrl(`cities/${citySlug}.json`),
+    fetcher,
+  ).catch((error: unknown) => {
+    if (cityRequests.get(citySlug) === request) cityRequests.delete(citySlug);
+    throw error;
+  });
   cityRequests.set(citySlug, request);
   return request;
 }

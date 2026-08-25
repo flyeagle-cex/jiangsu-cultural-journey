@@ -54,4 +54,45 @@ describe("generated Jiangsu knowledge corpus", () => {
 
     expect(perCityTotal).toBe(corpus.length);
   });
+
+  it("separates Nanjing and Zhenjiang source notes into reference chunks", () => {
+    const nanjing = corpus.filter((chunk) => chunk.city === "nanjing");
+    const zhenjiang = corpus.filter((chunk) => chunk.city === "zhenjiang");
+
+    expect(
+      nanjing.some(
+        (chunk) => chunk.section === "reference" && chunk.content.includes("南京市人民政府"),
+      ),
+    ).toBe(true);
+    expect(
+      zhenjiang.some(
+        (chunk) => chunk.section === "reference" && chunk.content.includes("镇江文旅"),
+      ),
+    ).toBe(true);
+    expect(
+      [...nanjing, ...zhenjiang].some(
+        (chunk) => chunk.section !== "reference" && /资料来源|参考资料|参考文献/u.test(chunk.content),
+      ),
+    ).toBe(false);
+  });
+
+  it("keeps Huaian table labels and subsequent food content in the food section", () => {
+    const huaian = corpus.filter((chunk) => chunk.city === "huaian");
+    const tableChunk = huaian.find((chunk) => chunk.content.includes("文化故事/场景"));
+    const contemporaryFoodChunk = huaian.find((chunk) => chunk.content.includes("2002年淮安获"));
+
+    expect(tableChunk?.section).toBe("food");
+    expect(contemporaryFoodChunk?.section).toBe("food");
+  });
+
+  it("retains Xuzhou's Grand Canal node content as waterways", () => {
+    expect(
+      corpus.some(
+        (chunk) =>
+          chunk.city === "xuzhou" &&
+          chunk.section === "waterways" &&
+          chunk.title.includes("大运河节点作用"),
+      ),
+    ).toBe(true);
+  });
 });

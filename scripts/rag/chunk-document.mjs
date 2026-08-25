@@ -33,8 +33,14 @@ function splitLongContent(content, options) {
   };
 
   for (const sentence of sentences) {
-    const nextLength = current.join("").length + sentence.length;
-    if (current.length && nextLength > options.maxCharacters) flush();
+    const currentLength = current.join("").length;
+    const nextLength = currentLength + sentence.length;
+    const targetDistance = Math.abs(options.targetCharacters - currentLength);
+    const nextTargetDistance = Math.abs(options.targetCharacters - nextLength);
+    const reachedSoftTarget =
+      currentLength >= options.targetCharacters * 0.6 && nextTargetDistance > targetDistance;
+
+    if (current.length && (nextLength > options.maxCharacters || reachedSoftTarget)) flush();
     current.push(sentence);
   }
   if (current.length) chunks.push(current.join(""));
@@ -52,7 +58,7 @@ function sameGroup(left, right) {
   );
 }
 
-function groupEntries(entries, options) {
+function groupEntries(entries) {
   const groups = [];
   let current = null;
 
@@ -62,13 +68,7 @@ function groupEntries(entries, options) {
       groups.push(current);
     }
 
-    const candidate = [...current.contents, entry.content].join("\n\n");
-    if (current.contents.length && candidate.length > options.maxCharacters) {
-      current = { meta: entry, contents: [entry.content], sourceOrder: entry.sourceOrder };
-      groups.push(current);
-    } else {
-      current.contents.push(entry.content);
-    }
+    current.contents.push(entry.content);
   }
 
   return groups;
@@ -82,13 +82,27 @@ function canMergeSmallChunks(left, right, options) {
   ) {
     return false;
   }
-  if (left.content.length + right.content.length + 2 > options.maxCharacters) return false;
-  if (left.content.length >= 120 && right.content.length >= 120) return false;
-  return (
-    left.parentTitle === right.parentTitle ||
-    left.content.length < 40 ||
-    right.content.length < 40
+  if (left.parentTitle !== right.parentTitle) return false;
+
+  const combinedLength = left.content.length + right.content.length + 2;
+  if (combinedLength > options.maxCharacters) return false;
+  if (left.content.length < 40 || right.content.length < 40) return true;
+
+  const completeEntryCharacters = Math.max(120, Math.round(options.targetCharacters * 0.25));
+  if (
+    left.title !== right.title &&
+    left.content.length >= completeEntryCharacters &&
+    right.content.length >= completeEntryCharacters
+  ) {
+    return false;
+  }
+
+  const currentDistance = Math.min(
+    Math.abs(options.targetCharacters - left.content.length),
+    Math.abs(options.targetCharacters - right.content.length),
   );
+  const mergedDistance = Math.abs(options.targetCharacters - combinedLength);
+  return combinedLength <= options.targetCharacters || mergedDistance < currentDistance;
 }
 
 function mergeSmallChunks(chunks, options) {
@@ -112,7 +126,7 @@ export function chunkEntries(entries, customOptions = {}) {
   const options = { ...DEFAULT_CHUNK_OPTIONS, ...customOptions };
   const rawChunks = [];
 
-  for (const group of groupEntries(entries, options)) {
+  for (const group of groupEntries(entries)) {
     const content = group.contents.join("\n\n");
     for (const part of splitLongContent(content, options)) {
       rawChunks.push({

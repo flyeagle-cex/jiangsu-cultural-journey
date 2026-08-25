@@ -52,6 +52,10 @@ function createManifest(chunks, generatedAt) {
 function createReport(chunks, documents, parsedResults, generatedAt) {
   const characterCounts = chunks.map((chunk) => chunk.content.length);
   const totalCharacters = characterCounts.reduce((sum, count) => sum + count, 0);
+  const referenceChunks = chunks.filter((chunk) => chunk.section === "reference");
+  const referenceDocumentsDetected = new Set(
+    referenceChunks.map((chunk) => chunk.sourceDocument),
+  ).size;
   return {
     version: "1.0.0",
     generatedAt,
@@ -66,6 +70,16 @@ function createReport(chunks, documents, parsedResults, generatedAt) {
     minimumChunkCharacters: Math.min(...characterCounts),
     maximumChunkCharacters: Math.max(...characterCounts),
     averageChunkCharacters: Math.round(totalCharacters / chunks.length),
+    referenceDocumentsDetected,
+    referenceChunks: referenceChunks.length,
+    tableDerivedParagraphs: parsedResults.reduce(
+      (sum, result) => sum + result.tableDerivedParagraphs,
+      0,
+    ),
+    tableHeadingCandidatesIgnored: parsedResults.reduce(
+      (sum, result) => sum + result.tableHeadingCandidatesIgnored,
+      0,
+    ),
     duplicateParagraphsRemoved: parsedResults.reduce((sum, result) => sum + result.duplicateCount, 0),
     parserWarnings: Object.fromEntries(
       documents.map((document, index) => [document.fileName, parsedResults[index].warnings]),

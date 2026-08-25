@@ -1,27 +1,27 @@
 {
   "version": "1.0.0",
-  "generatedAt": "2026-08-25T07:21:30.654Z",
-  "totalChunks": 230,
+  "generatedAt": "2026-08-25T08:27:00.956Z",
+  "totalChunks": 196,
   "cities": {
     "nanjing": {
       "nameZh": "南京",
-      "chunks": 23
+      "chunks": 19
     },
     "suzhou": {
       "nameZh": "苏州",
-      "chunks": 10
+      "chunks": 11
     },
     "wuxi": {
       "nameZh": "无锡",
-      "chunks": 23
+      "chunks": 22
     },
     "changzhou": {
       "nameZh": "常州",
-      "chunks": 13
+      "chunks": 11
     },
     "zhenjiang": {
       "nameZh": "镇江",
-      "chunks": 15
+      "chunks": 13
     },
     "yangzhou": {
       "nameZh": "扬州",
@@ -29,23 +29,23 @@
     },
     "taizhou": {
       "nameZh": "泰州",
-      "chunks": 33
+      "chunks": 23
     },
     "nantong": {
       "nameZh": "南通",
-      "chunks": 14
+      "chunks": 12
     },
     "yancheng": {
       "nameZh": "盐城",
-      "chunks": 16
+      "chunks": 13
     },
     "huaian": {
       "nameZh": "淮安",
-      "chunks": 20
+      "chunks": 16
     },
     "suqian": {
       "nameZh": "宿迁",
-      "chunks": 18
+      "chunks": 15
     },
     "xuzhou": {
       "nameZh": "徐州",
@@ -53,19 +53,19 @@
     },
     "lianyungang": {
       "nameZh": "连云港",
-      "chunks": 18
+      "chunks": 14
     }
   },
   "sectionCounts": {
-    "overview": 49,
-    "nature": 30,
-    "history": 23,
-    "heritage": 34,
-    "food": 55,
+    "overview": 48,
+    "nature": 27,
+    "history": 35,
+    "heritage": 28,
+    "food": 39,
     "waterways": 7,
-    "route": 4,
-    "story": 23,
-    "reference": 5,
+    "route": 3,
+    "story": 0,
+    "reference": 9,
     "other": 0
   }
 }

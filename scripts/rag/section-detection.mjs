@@ -2,6 +2,7 @@ const MAIN_ARABIC_HEADING = /^\s*\d+[、.．](?!\d)\s*/u;
 const MAIN_CHINESE_HEADING = /^\s*[一二三四五六七八九十]+[、.．]\s*/u;
 const SUB_ARABIC_HEADING = /^\s*\d+(?:\.\d+){1,3}\s*/u;
 const SUB_CHINESE_HEADING = /^\s*[（(][一二三四五六七八九十]+[）)]\s*/u;
+const STANDALONE_SPECIAL_HEADING = /^(?:资料来源|参考资料|参考文献|信息来源|来源说明|主题线路|文化线路|旅游线路|游览线路|推荐路线|主题路线|人物故事|文化故事|民间故事|历史故事)$/u;
 
 function isCanonicalSectionHeading(text) {
   const value = stripHeadingNumber(text).replace(/\s+/gu, "");
@@ -17,7 +18,23 @@ export function stripHeadingNumber(text) {
     .trim();
 }
 
-export function inferHeading(text, { htmlLevel = null, isStrong = false } = {}) {
+export function isStandaloneSpecialHeading(text) {
+  const normalized = text.trim().replace(/[：:]$/u, "").replace(/\s+/gu, "");
+  if (
+    MAIN_ARABIC_HEADING.test(normalized) ||
+    MAIN_CHINESE_HEADING.test(normalized) ||
+    SUB_ARABIC_HEADING.test(normalized) ||
+    SUB_CHINESE_HEADING.test(normalized)
+  ) {
+    return false;
+  }
+  return STANDALONE_SPECIAL_HEADING.test(normalized);
+}
+
+export function inferHeading(
+  text,
+  { htmlLevel = null, isStrong = false, isInTable = false } = {},
+) {
   const normalized = text.trim();
   if (!normalized || normalized.length > 80) return null;
 
@@ -29,6 +46,11 @@ export function inferHeading(text, { htmlLevel = null, isStrong = false } = {}) 
       title: normalized,
     };
   }
+
+  // Word tables often use bold, short labels for column headings. Unless Word
+  // emitted a real h1-h6 element above, table cells remain content and cannot
+  // mutate the document-wide section state.
+  if (isInTable) return null;
 
   if (/文化资料库/u.test(normalized) && normalized.length <= 40) {
     return { level: 1, isMain: true, title: normalized };
