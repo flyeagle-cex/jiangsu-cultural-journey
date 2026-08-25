@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 
 import { CityAmbientLayer } from "@/components/CityAmbientLayer";
 import { CityAnchorNav } from "@/components/CityAnchorNav";
+import { CityCreativeLinks } from "@/components/CityCreativeLinks";
 import { CityCultureSection } from "@/components/CityCultureSection";
 import { CityHero } from "@/components/CityHero";
 import { CityJourneyNav } from "@/components/CityJourneyNav";
@@ -38,6 +39,8 @@ export default function CityPage() {
           {city.sections.map((section, index) => (
             <CityCultureSection city={city} index={index} key={section.id} section={section} />
           ))}
+
+          <CityCreativeLinks citySlug={city.slug} />
 
           <div className="city-archive-note grid gap-3 border-b py-10 sm:grid-cols-[12rem_1fr] sm:items-start sm:py-12">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">

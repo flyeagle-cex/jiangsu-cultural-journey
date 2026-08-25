@@ -5,9 +5,15 @@ import { ChevronDown, LoaderCircle, MapPin, Search, X } from "lucide-react";
 
 import { requestShuiLingAnswer, ShuiLingApiError } from "@/assistant/api";
 import type { ShuiLingChatErrorCode, ShuiLingChatResponse } from "@/assistant/types";
+import { CreativeRecommendationBlock } from "@/components/CreativeRecommendationCard";
 import { ShuiLingMark } from "@/components/ShuiLingMark";
 import { useLanguage } from "@/context/LanguageContext";
 import { cityIdentityBySlug } from "@/data/city-manifest";
+import {
+  hasExplicitCreativeIntent,
+  isCreativeManifestLookup,
+  recommendCreativeProjects,
+} from "@/lib/creative-recommendation";
 import { searchKnowledge } from "@/rag/retrieval";
 import type {
   KnowledgeSection,
@@ -139,6 +145,7 @@ export function ShuiLingRetrievalPanel({
   const requestControllerRef = useRef<AbortController | null>(null);
   const requestIdRef = useRef(0);
   const [query, setQuery] = useState("");
+  const [submittedQuestion, setSubmittedQuestion] = useState("");
   const [response, setResponse] = useState<RetrievalResponse | null>(null);
   const [assistantResponse, setAssistantResponse] = useState<ShuiLingChatResponse | null>(null);
   const [assistantError, setAssistantError] = useState<ShuiLingChatErrorCode | null>(null);
@@ -157,10 +164,22 @@ export function ShuiLingRetrievalPanel({
       : `${copy.results} · ${response.results.length}`;
   }, [copy.results, language, response]);
 
+  const creativeRecommendations = useMemo(() => {
+    if (!submittedQuestion || phase === "idle" || phase === "retrieving") return [];
+    const explicitCreativeIntent = hasExplicitCreativeIntent(submittedQuestion);
+    if (assistantResponse?.insufficientEvidence && !explicitCreativeIntent) return [];
+    return recommendCreativeProjects({
+      question: submittedQuestion,
+      retrievalResults: response?.results ?? [],
+      currentCity: citySlug,
+    });
+  }, [assistantResponse?.insufficientEvidence, citySlug, phase, response?.results, submittedQuestion]);
+
   useEffect(() => {
     requestControllerRef.current?.abort();
     requestIdRef.current += 1;
     setQuery("");
+    setSubmittedQuestion("");
     setResponse(null);
     setAssistantResponse(null);
     setAssistantError(null);
@@ -200,14 +219,17 @@ export function ShuiLingRetrievalPanel({
 
     setPhase("retrieving");
     setError(false);
+    setSubmittedQuestion(question);
+    setResponse(null);
     setAssistantResponse(null);
     setAssistantError(null);
     try {
       const retrieval = await searchKnowledge(question, { currentCity: citySlug, topK: 5 });
       if (controller.signal.aborted || requestId !== requestIdRef.current) return;
-      setResponse(retrieval);
+      const manifestLookup = isCreativeManifestLookup(question);
+      setResponse(manifestLookup ? { ...retrieval, results: [] } : retrieval);
 
-      if (!retrieval.results.length) {
+      if (manifestLookup || !retrieval.results.length) {
         setPhase("insufficient");
         return;
       }
@@ -416,7 +438,17 @@ export function ShuiLingRetrievalPanel({
                       </div>
                     )}
 
-                    {response && !error && response.results.length === 0 && !assistantResponse && (
+                    <CreativeRecommendationBlock
+                      language={language}
+                      onNavigate={() => onOpenChange(false)}
+                      recommendations={creativeRecommendations}
+                    />
+
+                    {response &&
+                      !error &&
+                      response.results.length === 0 &&
+                      !assistantResponse &&
+                      creativeRecommendations.length === 0 && (
                       <p className="mx-auto max-w-[52ch] py-10 text-center text-sm leading-6 text-[#c1dddb]">
                         {copy.empty}
                       </p>

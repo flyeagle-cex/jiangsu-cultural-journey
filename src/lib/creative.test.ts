@@ -6,6 +6,7 @@ import {
   getCreativeProjectsByTheme,
   getFeaturedCreativeProjects,
   getPublishedCreativeProjects,
+  getPublishedCreativeProjectsByCity,
   isCreativeSlug,
 } from "@/lib/creative";
 import { creativeManifest } from "@/data/creative-manifest";
@@ -45,5 +46,30 @@ describe("creative selectors", () => {
     expect(getPublishedCreativeProjects([publishedProject, draftProject])).toEqual([
       publishedProject,
     ]);
+  });
+
+  it("returns only explicitly linked published city projects", () => {
+    const publishedProject = creativeManifest[0];
+    const suzhouProject = {
+      ...publishedProject,
+      slug: "future-suzhou" as unknown as typeof publishedProject.slug,
+      scope: "city" as const,
+      citySlugs: ["suzhou" as const],
+      sortOrder: 2,
+    };
+    const draftSuzhouProject = {
+      ...suzhouProject,
+      slug: "future-suzhou-draft" as unknown as typeof publishedProject.slug,
+      status: "draft" as const,
+    };
+
+    expect(
+      getPublishedCreativeProjectsByCity("suzhou", [
+        publishedProject,
+        draftSuzhouProject,
+        suzhouProject,
+      ]).map((project) => project.slug),
+    ).toEqual(["future-suzhou"]);
+    expect(getPublishedCreativeProjectsByCity("nanjing", [publishedProject])).toEqual([]);
   });
 });

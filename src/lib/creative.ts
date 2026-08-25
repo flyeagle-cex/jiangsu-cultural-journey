@@ -27,6 +27,18 @@ export function getPublishedCreativeProjects(
   return projects.filter((project) => project.status === "published");
 }
 
+export function getPublishedCreativeProjectsByCity(
+  citySlug: CitySlug,
+  projects: readonly CreativeProject[] = creativeManifest,
+): CreativeProject[] {
+  return getPublishedCreativeProjects(projects)
+    .filter((project) => project.citySlugs.includes(citySlug))
+    .sort(
+      (left, right) =>
+        left.sortOrder - right.sortOrder || left.slug.localeCompare(right.slug),
+    );
+}
+
 export function getFeaturedCreativeProjects(): CreativeProject[] {
   return getPublishedCreativeProjects()
     .filter((project) => project.featured)
