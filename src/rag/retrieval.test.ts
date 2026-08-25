@@ -168,4 +168,79 @@ describe("Stage 7B hybrid local retrieval", () => {
     expect(response.scope.citySlugs).toEqual(["wuxi"]);
     expect(topThree(response).some((result) => result.chunk.section === "food")).toBe(true);
   });
+
+  it("keeps food-domain single characters in a Wuxi query", async () => {
+    const response = await searchKnowledge("无锡菜为什么甜？", {
+      fetcher: createCorpusFetcher(),
+      topK: 5,
+    });
+
+    expect(response.scope.citySlugs).toEqual(["wuxi"]);
+    expect(response.results.length).toBeGreaterThan(0);
+    expect(topThree(response).some((result) => result.chunk.section === "food")).toBe(true);
+  });
+
+  it("retrieves Nanjing food for a concise eating query", async () => {
+    const response = await searchKnowledge("南京吃什么？", {
+      fetcher: createCorpusFetcher(),
+      topK: 5,
+    });
+
+    expect(response.scope.citySlugs).toEqual(["nanjing"]);
+    expect(topThree(response).some((result) => result.chunk.section === "food")).toBe(true);
+  });
+
+  it.each(["南京", "介绍一下南京", "给我介绍一下南京", "南京怎么样"])(
+    "maps a generic Nanjing query to city overview: %s",
+    async (query) => {
+      const response = await searchKnowledge(query, {
+        fetcher: createCorpusFetcher(),
+        topK: 5,
+      });
+
+      expect(response.scope.citySlugs).toEqual(["nanjing"]);
+      expect(response.results.length).toBeGreaterThan(0);
+      expect(topThree(response).every((result) => result.chunk.city === "nanjing")).toBe(true);
+      expect(topThree(response).some((result) => result.chunk.section === "overview")).toBe(true);
+    },
+  );
+
+  it.each(["介绍一下这里", "这里怎么样？"])(
+    "uses the current route city for a generic here query: %s",
+    async (query) => {
+      const response = await searchKnowledge(query, {
+        currentCity: "nanjing",
+        fetcher: createCorpusFetcher(),
+        topK: 5,
+      });
+
+      expect(response.scope.citySlugs).toEqual(["nanjing"]);
+      expect(response.fellBackToGlobal).toBe(false);
+      expect(response.results.length).toBeGreaterThan(0);
+      expect(topThree(response).every((result) => result.chunk.city === "nanjing")).toBe(true);
+      expect(topThree(response).some((result) => result.chunk.section === "overview")).toBe(true);
+    },
+  );
+
+  it("does not guess a city for a generic here query without route context", async () => {
+    const response = await searchKnowledge("这里怎么样？", {
+      fetcher: createCorpusFetcher(),
+      topK: 5,
+    });
+
+    expect(response.scope.kind).toBe("all");
+    expect(response.results).toEqual([]);
+  });
+
+  it("represents both cities for a generic multi-city introduction", async () => {
+    const response = await searchKnowledge("介绍一下南京和扬州", {
+      fetcher: createCorpusFetcher(),
+      topK: 5,
+    });
+    const resultCities = new Set(response.results.map((result) => result.chunk.city));
+
+    expect(response.scope.kind).toBe("multi-city");
+    expect(resultCities).toEqual(new Set(["nanjing", "yangzhou"]));
+    expect(topThree(response).some((result) => result.chunk.section === "overview")).toBe(true);
+  });
 });

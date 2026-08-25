@@ -22,6 +22,7 @@ describe("Stage 7B query analysis", () => {
     const tokens = tokenizeChineseText("无锡美食", { query: true });
     expect(tokens).toEqual(expect.arrayContaining(["无锡", "锡美", "美食", "无锡美", "锡美食"]));
     expect(uniqueQueryTokens("鸭和醋")).toEqual(expect.arrayContaining(["鸭", "醋"]));
+    expect(uniqueQueryTokens("菜吃甜")).toEqual(expect.arrayContaining(["菜", "吃", "甜"]));
   });
 
   it("maps a small supported English vocabulary without promising broad translation", () => {

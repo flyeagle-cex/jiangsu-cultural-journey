@@ -38,6 +38,9 @@ const ENGLISH_CULTURE_TERMS: ReadonlyArray<readonly [RegExp, string]> = [
 ];
 
 const DOMAIN_SINGLE_CHARACTERS = new Set([
+  "菜",
+  "吃",
+  "甜",
   "鸭",
   "醋",
   "茶",

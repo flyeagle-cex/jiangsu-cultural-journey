@@ -119,6 +119,7 @@ export function ShuiLingRetrievalPanel({
   const { language } = useLanguage();
   const reduceMotion = useReducedMotion();
   const inputRef = useRef<HTMLInputElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const [query, setQuery] = useState("");
   const [response, setResponse] = useState<RetrievalResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -182,9 +183,10 @@ export function ShuiLingRetrievalPanel({
                 }}
                 onOpenAutoFocus={(event) => {
                   event.preventDefault();
-                  if (window.matchMedia("(min-width: 640px)").matches) {
-                    window.requestAnimationFrame(() => inputRef.current?.focus());
-                  }
+                  const focusTarget = window.matchMedia("(min-width: 640px)").matches
+                    ? inputRef
+                    : closeButtonRef;
+                  window.requestAnimationFrame(() => focusTarget.current?.focus());
                 }}
               >
                 <motion.section
@@ -210,6 +212,7 @@ export function ShuiLingRetrievalPanel({
                     <Dialog.Close
                       aria-label={copy.close}
                       className="grid size-11 shrink-0 place-items-center rounded-md border border-[#c1dddb]/35 text-[#eaf1f9] outline-none transition-colors duration-150 hover:bg-[#42769d]/35 focus-visible:ring-2 focus-visible:ring-[#eac459]"
+                      ref={closeButtonRef}
                     >
                       <X aria-hidden="true" className="size-5" />
                     </Dialog.Close>

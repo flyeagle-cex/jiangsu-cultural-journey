@@ -56,6 +56,26 @@ const EXACT_PHRASE_TERMS = new Set([
   "水系",
 ]);
 
+const GENERIC_CITY_QUERY_FILLERS = [
+  "这个城市",
+  "这座城市",
+  "了解一下",
+  "给我",
+  "怎么样",
+  "介绍",
+  "了解",
+  "说说",
+  "讲讲",
+  "看看",
+  "这里",
+  "以及",
+  "和",
+  "与",
+  "及",
+];
+
+const GENERIC_CITY_OVERVIEW_QUERY = "城市 概况";
+
 type IndexedChunk = {
   chunk: KnowledgeChunk;
   title: string;
@@ -157,6 +177,14 @@ function removeDetectedCityNames(query: string, citySlugs: readonly CitySlug[]) 
   return removeQueryStopWords(value).replace(/\s+/gu, " ").trim();
 }
 
+function isGenericCityQuery(value: string) {
+  let remainder = normalizeQuery(value);
+  for (const filler of GENERIC_CITY_QUERY_FILLERS) {
+    remainder = remainder.replaceAll(filler, " ");
+  }
+  return remainder.replace(/\s+/gu, " ").trim().length === 0;
+}
+
 function addReason(reasons: Set<RetrievalMatchReason>, reason: RetrievalMatchReason) {
   reasons.add(reason);
 }
@@ -214,12 +242,16 @@ export function scoreKnowledgeChunks(
     topK?: number;
   } = {},
 ) {
-  const lexicalQuery = removeDetectedCityNames(query, explicitCitySlugs);
+  const strippedQuery = removeDetectedCityNames(query, explicitCitySlugs);
+  const hasCityContext = explicitCitySlugs.length > 0 || Boolean(currentCity);
+  const genericCityIntent = hasCityContext && isGenericCityQuery(strippedQuery);
+  const lexicalQuery = genericCityIntent ? GENERIC_CITY_OVERVIEW_QUERY : strippedQuery;
   const queryTerms = uniqueQueryTokens(lexicalQuery);
   if (!queryTerms.length) return [];
 
   const index = createRetrievalIndex(chunks);
   const sectionHints = detectSectionHints(query);
+  if (genericCityIntent) sectionHints.add("overview");
   const sourceIntent = SOURCE_QUERY_PATTERN.test(translateEnglishCultureTerms(query));
   const phraseTerms = queryTerms.filter(
     (term) => term.length >= 3 || EXACT_PHRASE_TERMS.has(term),
