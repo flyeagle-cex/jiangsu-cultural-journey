@@ -163,12 +163,12 @@ function JasmineFlower() {
 
 function CitySkyline({ kind }: { kind: CitySkylineKind }) {
   return (
-    <svg preserveAspectRatio="xMidYMid slice" viewBox="0 0 1600 240" xmlns="http://www.w3.org/2000/svg">
-      <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.55">
-        <path d="M-60 198c184-13 311 17 486 2 178-15 301-14 470 1 171 15 314-16 470-2 105 9 189 9 294-1" opacity="0.68" />
-        <path d="M-60 208c174-11 300 15 475 3 182-13 318-12 482 1 165 13 304-15 465-3 105 8 194 9 298 0" opacity="0.34" />
+    <svg preserveAspectRatio="none" viewBox="0 0 1600 240" xmlns="http://www.w3.org/2000/svg">
+      <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.1">
+        <path d="M-60 198c184-13 311 17 486 2 178-15 301-14 470 1 171 15 314-16 470-2 105 9 189 9 294-1" opacity="0.74" />
+        <path d="M-60 208c174-11 300 15 475 3 182-13 318-12 482 1 165 13 304-15 465-3 105 8 194 9 298 0" opacity="0.42" />
         {SKYLINE_PATHS[kind].map((path, index) => (
-          <path d={path} key={`${kind}-${index}`} opacity={index === 0 ? 0.74 : 0.92} />
+          <path d={path} key={`${kind}-${index}`} opacity={index === 0 ? 0.82 : 0.96} />
         ))}
       </g>
     </svg>
