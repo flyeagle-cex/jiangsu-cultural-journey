@@ -69,6 +69,7 @@ export const creativeManifest: CreativeProject[] = [
     metadataProvenance: {
       nameZh: "userProvided",
       nameEn: "temporaryTranslation",
+      scope: "derived",
       categories: "derived",
       themes: "derived",
       sourceAssets: "userProvided",

@@ -5,8 +5,10 @@ import {
   getCreativeProjectsByCity,
   getCreativeProjectsByTheme,
   getFeaturedCreativeProjects,
+  getPublishedCreativeProjects,
   isCreativeSlug,
 } from "@/lib/creative";
+import { creativeManifest } from "@/data/creative-manifest";
 
 describe("creative selectors", () => {
   it("resolves the first official project by slug", () => {
@@ -33,6 +35,15 @@ describe("creative selectors", () => {
   it("returns published featured projects in sort order", () => {
     expect(getFeaturedCreativeProjects().map((project) => project.slug)).toEqual([
       "water-spirit-global-voyage",
+    ]);
+  });
+
+  it("includes published projects and excludes drafts from public listings", () => {
+    const publishedProject = creativeManifest[0];
+    const draftProject = { ...publishedProject, status: "draft" as const };
+
+    expect(getPublishedCreativeProjects([publishedProject, draftProject])).toEqual([
+      publishedProject,
     ]);
   });
 });

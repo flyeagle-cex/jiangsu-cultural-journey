@@ -4,7 +4,6 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import {
   creativeCategoryLabels,
-  creativeManifest,
   creativeThemeLabels,
 } from "@/data/creative-manifest";
 import { useLanguage } from "@/context/LanguageContext";
@@ -12,6 +11,7 @@ import {
   CREATIVE_CENTER_PATH,
   getCreativeProjectPath,
   getFeaturedCreativeProjects,
+  getPublishedCreativeProjects,
 } from "@/lib/creative";
 import type { CreativeCategory } from "@/types/creative";
 
@@ -24,10 +24,11 @@ export default function CreativeCenterPage() {
   const [searchParams] = useSearchParams();
   const requestedCategory = searchParams.get("category");
   const activeCategory = isCreativeCategory(requestedCategory) ? requestedCategory : null;
+  const publishedProjects = getPublishedCreativeProjects();
   const featuredProjects = getFeaturedCreativeProjects();
   const visibleProjects = activeCategory
-    ? creativeManifest.filter((project) => project.categories.includes(activeCategory))
-    : creativeManifest;
+    ? publishedProjects.filter((project) => project.categories.includes(activeCategory))
+    : publishedProjects;
 
   useEffect(() => {
     document.title = language === "zh" ? "文创中心｜水韵江苏" : "Creative Center | Jiangsu Cultural Journey";
@@ -52,7 +53,7 @@ export default function CreativeCenterPage() {
           </div>
           <p className="border-l border-[#EAC459]/70 pl-5 text-sm leading-6 text-[#EAF1F9]">
             <span className="block text-3xl font-semibold tabular-nums text-[#EAC459]">
-              {creativeManifest.length}
+              {publishedProjects.length}
             </span>
             {language === "zh" ? "件正式作品已登记" : "official project registered"}
           </p>

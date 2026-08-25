@@ -21,9 +21,15 @@ export function getCreativeProjectsByTheme(theme: CreativeTheme): CreativeProjec
   return creativeManifest.filter((project) => project.themes.includes(theme));
 }
 
+export function getPublishedCreativeProjects(
+  projects: readonly CreativeProject[] = creativeManifest,
+): CreativeProject[] {
+  return projects.filter((project) => project.status === "published");
+}
+
 export function getFeaturedCreativeProjects(): CreativeProject[] {
-  return creativeManifest
-    .filter((project) => project.featured && project.status === "published")
+  return getPublishedCreativeProjects()
+    .filter((project) => project.featured)
     .sort((left, right) => left.sortOrder - right.sortOrder);
 }
 

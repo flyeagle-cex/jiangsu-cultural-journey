@@ -75,6 +75,7 @@ export type CreativeProject = {
   metadataProvenance: {
     nameZh: CreativeContentProvenance;
     nameEn: CreativeContentProvenance;
+    scope: CreativeContentProvenance;
     categories: CreativeContentProvenance;
     themes: CreativeContentProvenance;
     sourceAssets: CreativeContentProvenance;

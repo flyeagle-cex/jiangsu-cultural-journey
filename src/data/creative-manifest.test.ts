@@ -51,4 +51,11 @@ describe("creative manifest", () => {
     expect(project.coverAsset).toBeNull();
     expect(project.gallery).toEqual([]);
   });
+
+  it("records the Jiangsu scope as derived metadata", () => {
+    const [project] = creativeManifest;
+
+    expect(project.scope).toBe("jiangsu");
+    expect(project.metadataProvenance.scope).toBe("derived");
+  });
 });
