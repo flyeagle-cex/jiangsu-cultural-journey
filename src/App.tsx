@@ -1,16 +1,18 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 
 import { CityAmbientLayer } from "@/components/CityAmbientLayer";
 import { Navbar } from "@/components/Navbar";
 import { ScrollManager } from "@/components/ScrollManager";
-import { ShuiLingGuide } from "@/components/ShuiLingGuide";
 import { WelcomeLayer } from "@/components/WelcomeLayer";
 import { useLanguage } from "@/context/LanguageContext";
 import { HomePage } from "@/pages/HomePage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 
 const CityPage = lazy(() => import("@/pages/CityPage"));
+const ShuiLingGuide = lazy(() =>
+  import("@/components/ShuiLingGuide").then((module) => ({ default: module.ShuiLingGuide })),
+);
 
 function CityRouteLoading() {
   const { language } = useLanguage();
@@ -32,6 +34,7 @@ function CityRouteLoading() {
 
 export default function App() {
   const { language } = useLanguage();
+  const [welcomeVisible, setWelcomeVisible] = useState(true);
 
   return (
     <>
@@ -52,8 +55,10 @@ export default function App() {
         />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
-      <WelcomeLayer />
-      <ShuiLingGuide />
+      <WelcomeLayer onVisibilityChange={setWelcomeVisible} />
+      <Suspense fallback={null}>
+        <ShuiLingGuide hidden={welcomeVisible} mode="guide" />
+      </Suspense>
     </>
   );
 }

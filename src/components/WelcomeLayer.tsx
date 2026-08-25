@@ -1,35 +1,84 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ArrowDown, X } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { ShuiLingMark } from "@/components/ShuiLingMark";
 import { useLanguage } from "@/context/LanguageContext";
+import { SHUILING_ASSETS, SHUILING_COPY } from "@/data/shuiling-guide";
+import {
+  SHUILING_WELCOME_REPLAY_EVENT,
+  SHUILING_WELCOME_STORAGE_KEY,
+  dismissShuiLingWelcome,
+  hasSeenShuiLingWelcome,
+} from "@/lib/shuiling-session";
 
-export const WELCOME_STORAGE_KEY = "jiangsu-cultural-journey:welcome-seen";
+export const WELCOME_STORAGE_KEY = SHUILING_WELCOME_STORAGE_KEY;
 
-function shouldShowWelcome() {
-  if (typeof window === "undefined") return false;
-  return window.localStorage.getItem(WELCOME_STORAGE_KEY) !== "true";
+type WelcomeLayerProps = {
+  onVisibilityChange?: (visible: boolean) => void;
+};
+
+function WelcomeJasmine({ className }: { className: string }) {
+  return (
+    <svg aria-hidden="true" className={className} viewBox="0 0 48 48">
+      <g fill="#f4f1e8" stroke="rgba(214,205,190,0.72)" strokeWidth="0.8">
+        <ellipse cx="24" cy="13" rx="7" ry="12" />
+        <ellipse cx="35" cy="21" rx="7" ry="12" transform="rotate(72 35 21)" />
+        <ellipse cx="31" cy="35" rx="7" ry="12" transform="rotate(144 31 35)" />
+        <ellipse cx="17" cy="35" rx="7" ry="12" transform="rotate(216 17 35)" />
+        <ellipse cx="13" cy="21" rx="7" ry="12" transform="rotate(288 13 21)" />
+      </g>
+      <circle cx="24" cy="24" fill="#eac459" r="3.2" />
+    </svg>
+  );
 }
 
-export function WelcomeLayer() {
+export function WelcomeLayer({ onVisibilityChange }: WelcomeLayerProps) {
   const { language } = useLanguage();
+  const location = useLocation();
+  const navigate = useNavigate();
   const reduceMotion = useReducedMotion();
-  const [visible, setVisible] = useState(shouldShowWelcome);
-  const skipButtonRef = useRef<HTMLButtonElement>(null);
+  const [visible, setVisible] = useState(() => location.pathname === "/" && !hasSeenShuiLingWelcome());
+  const startButtonRef = useRef<HTMLButtonElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+
+  const dismiss = useCallback(() => {
+    dismissShuiLingWelcome();
+    setVisible(false);
+  }, []);
+
+  const startExploring = useCallback(() => {
+    dismiss();
+    navigate("/#cities");
+    window.requestAnimationFrame(() => {
+      document.getElementById("cities")?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
+    });
+  }, [dismiss, navigate, reduceMotion]);
 
   useEffect(() => {
-    if (!visible) return;
-    const timer = window.setTimeout(() => {
-      window.localStorage.setItem(WELCOME_STORAGE_KEY, "true");
+    if (location.pathname !== "/") {
       setVisible(false);
-    }, reduceMotion ? 800 : 4200);
+      return;
+    }
+    if (!hasSeenShuiLingWelcome()) setVisible(true);
+  }, [location.pathname]);
 
-    return () => window.clearTimeout(timer);
-  }, [reduceMotion, visible]);
+  useEffect(() => {
+    const replay = () => {
+      if (location.pathname === "/") setVisible(true);
+    };
+    window.addEventListener(SHUILING_WELCOME_REPLAY_EVENT, replay);
+    return () => window.removeEventListener(SHUILING_WELCOME_REPLAY_EVENT, replay);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    onVisibilityChange?.(visible);
+  }, [onVisibilityChange, visible]);
 
   useEffect(() => {
     if (!visible) return;
-    const focusFrame = window.requestAnimationFrame(() => skipButtonRef.current?.focus());
+    previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const focusFrame = window.requestAnimationFrame(() => startButtonRef.current?.focus());
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") dismiss();
     };
@@ -38,138 +87,110 @@ export function WelcomeLayer() {
     return () => {
       window.cancelAnimationFrame(focusFrame);
       window.removeEventListener("keydown", handleKeyDown);
+      previousFocusRef.current?.focus({ preventScroll: true });
     };
-  }, [visible]);
-
-  function dismiss() {
-    window.localStorage.setItem(WELCOME_STORAGE_KEY, "true");
-    setVisible(false);
-  }
+  }, [dismiss, visible]);
 
   return (
     <AnimatePresence>
       {visible && (
         <motion.div
           animate={{ opacity: 1 }}
-          aria-describedby="welcome-message"
-          aria-labelledby="welcome-title"
-          aria-modal="true"
-          className="fixed inset-0 z-[80] grid overflow-hidden bg-[#5e6c82] text-[#eaf1f9]"
+          className="welcome-layer fixed inset-0 z-[60] overflow-hidden"
           exit={{ opacity: 0 }}
           initial={{ opacity: 0 }}
-          role="dialog"
-          transition={{ duration: reduceMotion ? 0 : 0.45 }}
+          transition={{ duration: reduceMotion ? 0 : 0.22, ease: "easeOut" }}
         >
-          <img
-            alt=""
-            aria-hidden="true"
-            className="hero-water-image absolute inset-0 size-full object-cover opacity-25"
-            height="1080"
-            src="/assets/hero-grand-canal.jpg"
-            width="1920"
+          <button
+            aria-label={language === "zh" ? "关闭水灵欢迎" : "Close Shuiling welcome"}
+            className="welcome-layer__dismiss-backdrop absolute inset-0 cursor-default"
+            onClick={dismiss}
+            tabIndex={-1}
+            type="button"
           />
-          <div aria-hidden="true" className="absolute inset-0 bg-[#5e6c82]/[0.74]" />
-          <div aria-hidden="true" className="welcome-water-ripples" />
-          <div aria-hidden="true" className="deep-water-currents opacity-55" />
-          <div aria-hidden="true" className="welcome-foam" />
-          <div className="relative z-10 mx-auto flex min-h-full w-full max-w-[1440px] flex-col px-5 py-6 sm:px-8 sm:py-8 lg:px-10">
-            <div className="flex items-center justify-between gap-6 border-b border-[#c1dddb]/[0.35] pb-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-                {language === "zh" ? "水韵江苏 · 初次相遇" : "Jiangsu Cultural Journey · First encounter"}
+
+          <motion.section
+            animate={{ opacity: 1, y: 0 }}
+            aria-describedby="shuiling-welcome-message"
+            aria-labelledby="shuiling-welcome-title"
+            aria-modal="false"
+            className="welcome-layer__stage absolute bottom-0 right-0 overflow-hidden text-[#eaf1f9]"
+            initial={{ opacity: reduceMotion ? 1 : 0, y: reduceMotion ? 0 : 18 }}
+            role="dialog"
+            transition={{ delay: reduceMotion ? 0 : 0.18, duration: 0.5, ease: "easeOut" }}
+          >
+            <div aria-hidden="true" className="welcome-layer__water" />
+            <WelcomeJasmine className="welcome-layer__jasmine welcome-layer__jasmine--one" />
+            <WelcomeJasmine className="welcome-layer__jasmine welcome-layer__jasmine--two" />
+
+            <motion.div
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              className="welcome-layer__portrait"
+              initial={{ opacity: reduceMotion ? 1 : 0, y: reduceMotion ? 0 : 24, scale: reduceMotion ? 1 : 0.985 }}
+              transition={{ delay: reduceMotion ? 0 : 0.58, duration: 0.58, ease: "easeOut" }}
+            >
+              <video
+                aria-hidden="true"
+                autoPlay
+                className="size-full object-cover"
+                loop
+                muted
+                playsInline
+                poster={SHUILING_ASSETS.poster}
+                preload="metadata"
+                src={SHUILING_ASSETS.video}
+              />
+              <div aria-hidden="true" className="welcome-layer__portrait-wash" />
+            </motion.div>
+
+            <motion.div
+              animate={{ opacity: 1, y: 0 }}
+              className="welcome-layer__copy relative z-10"
+              initial={{ opacity: reduceMotion ? 1 : 0, y: reduceMotion ? 0 : 12 }}
+              transition={{ delay: reduceMotion ? 0 : 1.02, duration: 0.42, ease: "easeOut" }}
+            >
+              <div className="flex items-start justify-between gap-5">
+                <p className="welcome-layer__name font-semibold text-[#eac459]" translate="no">
+                  {SHUILING_COPY.name[language]}
+                </p>
+                <button
+                  aria-label={language === "zh" ? "关闭欢迎" : "Close welcome"}
+                  className="welcome-layer__close grid size-11 shrink-0 place-items-center text-[#eaf1f9] outline-none"
+                  onClick={dismiss}
+                  type="button"
+                >
+                  <X aria-hidden="true" className="size-4" />
+                </button>
+              </div>
+              <h2
+                className="mt-4 max-w-[12ch] font-display text-[clamp(2rem,3.2vw,3.4rem)] font-semibold leading-[1.04] tracking-[-0.035em] text-[#f3f8fc]"
+                id="shuiling-welcome-title"
+              >
+                {SHUILING_COPY.welcomeTitle[language]}
+              </h2>
+              <p className="mt-4 max-w-[34ch] text-sm leading-6 text-[#eaf1f9]/90 sm:text-base sm:leading-7" id="shuiling-welcome-message">
+                {SHUILING_COPY.welcomeBody[language]}
               </p>
-              <button
-                className="min-h-11 border-b border-[#c1dddb]/[0.55] px-1 text-sm font-semibold text-[#eaf1f9] outline-none transition-colors hover:border-primary hover:text-primary focus-visible:ring-2 focus-visible:ring-ring"
-                onClick={dismiss}
-                ref={skipButtonRef}
-                type="button"
-              >
-                {language === "zh" ? "跳过欢迎" : "Skip welcome"}
-              </button>
-            </div>
-
-            <div className="grid flex-1 items-center gap-10 py-10 md:grid-cols-12 md:gap-8">
-              <motion.div
-                animate={{ opacity: 1, y: 0 }}
-                className="md:col-span-7 lg:col-span-8"
-                initial={{ opacity: reduceMotion ? 1 : 0, y: reduceMotion ? 0 : 18 }}
-                transition={{ delay: reduceMotion ? 0 : 0.35, duration: 0.5 }}
-              >
-                <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-                  <span aria-hidden="true" className="h-px w-12 bg-primary/60" />
-                  {language === "zh" ? "AI 文化向导 · 水灵" : "AI cultural guide · ShuiLing"}
-                </p>
-                <h2
-                  className={
-                    "mt-7 font-display font-semibold leading-[0.98] tracking-[-0.045em] text-[#eaf1f9] " +
-                    (language === "zh"
-                      ? "text-[clamp(2.65rem,7vw,7.2rem)]"
-                      : "text-[clamp(2.35rem,6.2vw,6.4rem)]")
-                  }
-                  id="welcome-title"
+              <div className="welcome-layer__actions mt-7 flex flex-wrap items-center gap-4">
+                <button
+                  className="welcome-layer__primary inline-flex min-h-11 items-center gap-2 px-5 text-sm font-semibold outline-none"
+                  onClick={startExploring}
+                  ref={startButtonRef}
+                  type="button"
                 >
-                  {language === "zh" ? (
-                    <>
-                      <span className="block sm:hidden">
-                        你好！我是
-                        <br />
-                        水灵，欢迎
-                        <br />
-                        来到江苏。
-                      </span>
-                      <span className="hidden sm:block">
-                        你好！我是水灵，
-                        <br />
-                        欢迎来到江苏。
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="block sm:hidden">
-                        Hi! I'm ShuiLing.
-                        <br />
-                        Welcome to
-                        <br />
-                        Jiangsu.
-                      </span>
-                      <span className="hidden sm:block">
-                        Hi! I'm ShuiLing.
-                        <br />
-                        Welcome to Jiangsu.
-                      </span>
-                    </>
-                  )}
-                </h2>
-                <p
-                  className="mt-6 max-w-[58ch] font-display text-xl leading-8 text-primary sm:text-2xl sm:leading-9"
-                  id="welcome-message"
+                  {SHUILING_COPY.start[language]}
+                  <ArrowDown aria-hidden="true" className="size-4" />
+                </button>
+                <button
+                  className="welcome-layer__later min-h-11 px-1 text-sm font-semibold text-[#d7e2de] outline-none"
+                  onClick={dismiss}
+                  type="button"
                 >
-                  {language === "zh"
-                    ? "Hi! I'm ShuiLing. Let me show you around Jiangsu!"
-                    : "你好！我是水灵，让我带你游江苏。"}
-                </p>
-              </motion.div>
-
-              <motion.div
-                animate={{ opacity: 1, scale: 1 }}
-                className="atlas-index-rule justify-self-center pl-6 md:col-span-5 md:justify-self-end lg:col-span-3 lg:col-start-10"
-                initial={{ opacity: reduceMotion ? 1 : 0, scale: reduceMotion ? 1 : 0.94 }}
-                transition={{ delay: reduceMotion ? 0 : 0.15, duration: 0.6, ease: "easeOut" }}
-              >
-                <ShuiLingMark large />
-                <div className="mt-5 flex items-center justify-between gap-4 border-t border-[#c1dddb]/[0.32] pt-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-                    {language === "zh" ? "水上文化向导" : "Water culture guide"}
-                  </p>
-                  <p className="text-xs tabular-nums text-[#b3c6bb]">01 / 13</p>
-                </div>
-              </motion.div>
-            </div>
-
-            <div className="hidden items-center justify-between gap-6 border-t border-[#c1dddb]/[0.35] pt-5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#b3c6bb] sm:flex">
-              <p>{language === "zh" ? "江河 · 运河 · 湖海" : "Rivers · Canal · Lakes · Coast"}</p>
-              <p>{language === "zh" ? "四秒后进入文化地图" : "Entering the cultural map in four seconds"}</p>
-            </div>
-          </div>
+                  {SHUILING_COPY.later[language]}
+                </button>
+              </div>
+            </motion.div>
+          </motion.section>
         </motion.div>
       )}
     </AnimatePresence>
