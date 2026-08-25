@@ -8,10 +8,16 @@ import { WelcomeLayer } from "@/components/WelcomeLayer";
 import { useLanguage } from "@/context/LanguageContext";
 import { HomePage } from "@/pages/HomePage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
+import type { CitySlug } from "@/types/city";
 
 const CityPage = lazy(() => import("@/pages/CityPage"));
 const ShuiLingGuide = lazy(() =>
   import("@/components/ShuiLingGuide").then((module) => ({ default: module.ShuiLingGuide })),
+);
+const ShuiLingRetrievalPanel = lazy(() =>
+  import("@/components/ShuiLingRetrievalPanel").then((module) => ({
+    default: module.ShuiLingRetrievalPanel,
+  })),
 );
 
 function CityRouteLoading() {
@@ -35,6 +41,15 @@ function CityRouteLoading() {
 export default function App() {
   const { language } = useLanguage();
   const [welcomeVisible, setWelcomeVisible] = useState(true);
+  const [assistantMounted, setAssistantMounted] = useState(false);
+  const [assistantOpen, setAssistantOpen] = useState(false);
+  const [assistantCitySlug, setAssistantCitySlug] = useState<CitySlug>();
+
+  const openRetrieval = ({ citySlug }: { citySlug?: CitySlug }) => {
+    setAssistantCitySlug(citySlug);
+    setAssistantMounted(true);
+    setAssistantOpen(true);
+  };
 
   return (
     <>
@@ -57,8 +72,17 @@ export default function App() {
       </Routes>
       <WelcomeLayer onVisibilityChange={setWelcomeVisible} />
       <Suspense fallback={null}>
-        <ShuiLingGuide hidden={welcomeVisible} mode="guide" />
+        <ShuiLingGuide hidden={welcomeVisible} mode="assistant" onAskAI={openRetrieval} />
       </Suspense>
+      {assistantMounted && (
+        <Suspense fallback={null}>
+          <ShuiLingRetrievalPanel
+            citySlug={assistantCitySlug}
+            onOpenChange={setAssistantOpen}
+            open={assistantOpen}
+          />
+        </Suspense>
+      )}
     </>
   );
 }

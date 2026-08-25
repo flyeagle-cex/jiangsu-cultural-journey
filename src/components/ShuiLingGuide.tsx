@@ -169,6 +169,7 @@ export function ShuiLingGuide({ citySlug, hidden = false, mode = "guide", onAskA
 
   const announceComingSoon = (action: ShuiLingGuideAction) => {
     if (action.id === "ask" && mode === "assistant" && onAskAI) {
+      closePanel(false);
       onAskAI({ citySlug: city?.slug });
       return;
     }
