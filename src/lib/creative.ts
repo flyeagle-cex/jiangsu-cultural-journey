@@ -1,0 +1,32 @@
+import { creativeManifest } from "@/data/creative-manifest";
+import type { CitySlug } from "@/types/city";
+import type { CreativeProject, CreativeSlug, CreativeTheme } from "@/types/creative";
+
+export const CREATIVE_CENTER_PATH = "/creative";
+export const CREATIVE_DETAIL_PATH = "/creative/:slug";
+
+export function getCreativeProjectPath(slug: CreativeSlug): string {
+  return `${CREATIVE_CENTER_PATH}/${slug}`;
+}
+
+export function getCreativeProjectBySlug(slug: string | undefined): CreativeProject | undefined {
+  return creativeManifest.find((project) => project.slug === slug);
+}
+
+export function getCreativeProjectsByCity(citySlug: CitySlug): CreativeProject[] {
+  return creativeManifest.filter((project) => project.citySlugs.includes(citySlug));
+}
+
+export function getCreativeProjectsByTheme(theme: CreativeTheme): CreativeProject[] {
+  return creativeManifest.filter((project) => project.themes.includes(theme));
+}
+
+export function getFeaturedCreativeProjects(): CreativeProject[] {
+  return creativeManifest
+    .filter((project) => project.featured && project.status === "published")
+    .sort((left, right) => left.sortOrder - right.sortOrder);
+}
+
+export function isCreativeSlug(value: string): value is CreativeSlug {
+  return creativeManifest.some((project) => project.slug === value);
+}

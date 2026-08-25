@@ -18,6 +18,7 @@ const navItems = [
   { to: "/#canal", zh: "大运河", en: "Grand Canal" },
   { to: "/#heritage", zh: "非遗", en: "Heritage" },
   { to: "/#food", zh: "美食", en: "Food" },
+  { to: "/creative", zh: "文创中心", en: "Creative" },
   { to: "/#about", zh: "关于", en: "About" },
 ] as const;
 
