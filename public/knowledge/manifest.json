@@ -1,0 +1,71 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-08-25T07:21:30.654Z",
+  "totalChunks": 230,
+  "cities": {
+    "nanjing": {
+      "nameZh": "南京",
+      "chunks": 23
+    },
+    "suzhou": {
+      "nameZh": "苏州",
+      "chunks": 10
+    },
+    "wuxi": {
+      "nameZh": "无锡",
+      "chunks": 23
+    },
+    "changzhou": {
+      "nameZh": "常州",
+      "chunks": 13
+    },
+    "zhenjiang": {
+      "nameZh": "镇江",
+      "chunks": 15
+    },
+    "yangzhou": {
+      "nameZh": "扬州",
+      "chunks": 14
+    },
+    "taizhou": {
+      "nameZh": "泰州",
+      "chunks": 33
+    },
+    "nantong": {
+      "nameZh": "南通",
+      "chunks": 14
+    },
+    "yancheng": {
+      "nameZh": "盐城",
+      "chunks": 16
+    },
+    "huaian": {
+      "nameZh": "淮安",
+      "chunks": 20
+    },
+    "suqian": {
+      "nameZh": "宿迁",
+      "chunks": 18
+    },
+    "xuzhou": {
+      "nameZh": "徐州",
+      "chunks": 13
+    },
+    "lianyungang": {
+      "nameZh": "连云港",
+      "chunks": 18
+    }
+  },
+  "sectionCounts": {
+    "overview": 49,
+    "nature": 30,
+    "history": 23,
+    "heritage": 34,
+    "food": 55,
+    "waterways": 7,
+    "route": 4,
+    "story": 23,
+    "reference": 5,
+    "other": 0
+  }
+}

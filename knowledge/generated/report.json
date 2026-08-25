@@ -1,0 +1,107 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-08-25T07:21:30.654Z",
+  "sourceDocuments": {
+    "count": 13,
+    "files": [
+      "江苏十三市文化资料库 · 南京篇.docx",
+      "江苏十三市文化资料库·苏州篇.docx",
+      "江苏十三市文化资料库 · 无锡篇.docx",
+      "江苏十三市文化资料库·常州篇.docx",
+      "江苏十三市文化资料库 · 镇江篇.docx",
+      "江苏十三市文化资料库•扬州.docx",
+      "江苏十三市文化资料库 · 泰州篇.docx",
+      "江苏十三市文化资料库 ·南通篇.docx",
+      "江苏十三市文化资料库・盐城篇.docx",
+      "江苏十三市文化资料库·淮安篇.docx",
+      "江苏十三市文化资料库·宿迁篇.docx",
+      "江苏十三市文化资料库·徐州篇.docx",
+      "江苏十三市文化资料库·连云港.docx"
+    ]
+  },
+  "totalChunks": 230,
+  "cityCounts": {
+    "nanjing": 23,
+    "suzhou": 10,
+    "wuxi": 23,
+    "changzhou": 13,
+    "zhenjiang": 15,
+    "yangzhou": 14,
+    "taizhou": 33,
+    "nantong": 14,
+    "yancheng": 16,
+    "huaian": 20,
+    "suqian": 18,
+    "xuzhou": 13,
+    "lianyungang": 18
+  },
+  "sectionCounts": {
+    "overview": 49,
+    "nature": 30,
+    "history": 23,
+    "heritage": 34,
+    "food": 55,
+    "waterways": 7,
+    "route": 4,
+    "story": 23,
+    "reference": 5,
+    "other": 0
+  },
+  "totalCharacters": 61475,
+  "minimumChunkCharacters": 68,
+  "maximumChunkCharacters": 891,
+  "averageChunkCharacters": 267,
+  "duplicateParagraphsRemoved": 8,
+  "parserWarnings": {
+    "江苏十三市文化资料库 · 南京篇.docx": [
+      "An unrecognised element was ignored: w:tblPrEx"
+    ],
+    "江苏十三市文化资料库·苏州篇.docx": [
+      "Unrecognised paragraph style: 'caption' (Style ID: 5)"
+    ],
+    "江苏十三市文化资料库 · 无锡篇.docx": [
+      "An unrecognised element was ignored: w:tblPrEx"
+    ],
+    "江苏十三市文化资料库·常州篇.docx": [
+      "Unrecognised paragraph style: 'caption' (Style ID: 5)"
+    ],
+    "江苏十三市文化资料库 · 镇江篇.docx": [
+      "An unrecognised element was ignored: w:tblPrEx"
+    ],
+    "江苏十三市文化资料库•扬州.docx": [
+      "An unrecognised element was ignored: v:fill",
+      "An unrecognised element was ignored: v:stroke",
+      "A v:imagedata element without a relationship ID was ignored",
+      "An unrecognised element was ignored: {urn:schemas-microsoft-com:office:office}lock"
+    ],
+    "江苏十三市文化资料库 · 泰州篇.docx": [
+      "An unrecognised element was ignored: w:tblPrEx",
+      "Image of type null is unlikely to display in web browsers"
+    ],
+    "江苏十三市文化资料库 ·南通篇.docx": [
+      "An unrecognised element was ignored: w:tblPrEx"
+    ],
+    "江苏十三市文化资料库・盐城篇.docx": [
+      "An unrecognised element was ignored: w:tblPrEx"
+    ],
+    "江苏十三市文化资料库·淮安篇.docx": [
+      "An unrecognised element was ignored: w:tblPrEx",
+      "Unrecognised paragraph style: 'Caption Small' (Style ID: 166)",
+      "Unrecognised paragraph style: 'Source Text' (Style ID: 167)"
+    ],
+    "江苏十三市文化资料库·宿迁篇.docx": [
+      "An unrecognised element was ignored: w:tblPrEx",
+      "Unrecognised paragraph style: 'Caption Small' (Style ID: 166)",
+      "Unrecognised paragraph style: 'Source Text' (Style ID: 167)"
+    ],
+    "江苏十三市文化资料库·徐州篇.docx": [
+      "An unrecognised element was ignored: w:tblPrEx"
+    ],
+    "江苏十三市文化资料库·连云港.docx": [
+      "An unrecognised element was ignored: v:fill",
+      "An unrecognised element was ignored: v:stroke",
+      "A v:imagedata element without a relationship ID was ignored",
+      "An unrecognised element was ignored: {urn:schemas-microsoft-com:office:office}lock"
+    ]
+  }
+}
