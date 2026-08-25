@@ -10,7 +10,6 @@ import { ShuiLingMark } from "@/components/ShuiLingMark";
 import { useLanguage } from "@/context/LanguageContext";
 import { cityIdentityBySlug } from "@/data/city-manifest";
 import {
-  hasExplicitCreativeIntent,
   isCreativeManifestLookup,
   recommendCreativeProjects,
 } from "@/lib/creative-recommendation";
@@ -166,8 +165,8 @@ export function ShuiLingRetrievalPanel({
 
   const creativeRecommendations = useMemo(() => {
     if (!submittedQuestion || phase === "idle" || phase === "retrieving") return [];
-    const explicitCreativeIntent = hasExplicitCreativeIntent(submittedQuestion);
-    if (assistantResponse?.insufficientEvidence && !explicitCreativeIntent) return [];
+    const manifestLookup = isCreativeManifestLookup(submittedQuestion);
+    if (assistantResponse?.insufficientEvidence && !manifestLookup) return [];
     return recommendCreativeProjects({
       question: submittedQuestion,
       retrievalResults: response?.results ?? [],

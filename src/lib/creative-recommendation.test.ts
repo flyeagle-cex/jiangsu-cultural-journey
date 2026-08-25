@@ -62,10 +62,28 @@ describe("deterministic creative recommendations", () => {
     expect(hasExplicitCreativeIntent(question)).toBe(true);
   });
 
-  it("distinguishes a manifest lookup from a creative question with a culture theme", () => {
-    expect(isCreativeManifestLookup("有什么文创？")).toBe(true);
-    expect(isCreativeManifestLookup("苏州有什么文创？")).toBe(true);
-    expect(isCreativeManifestLookup("江苏大运河有什么文创？")).toBe(false);
+  it.each([
+    "有什么文创？",
+    "你们有什么文创？",
+    "有哪些文创？",
+    "What creative products are available?",
+  ])("recognizes a generic manifest lookup: %s", (question) => {
+    expect(isCreativeManifestLookup(question)).toBe(true);
+  });
+
+  it.each([
+    "江苏非遗有什么文创？",
+    "江苏美食有什么文创？",
+    "江苏历史有什么文创？",
+    "江苏大运河有什么文创？",
+    "苏州有什么文创？",
+    "火星有什么文创？",
+    "Python 有什么文创？",
+  ])("does not treat a constrained creative query as a manifest lookup: %s", (question) => {
+    expect(isCreativeManifestLookup(question)).toBe(false);
+  });
+
+  it("detects the cultural theme in a constrained creative query", () => {
     expect(getCreativeQueryThemes("江苏大运河有什么文创？")).toEqual(["water_culture"]);
   });
 
@@ -99,6 +117,66 @@ describe("deterministic creative recommendations", () => {
     expect(recommendation.reasons).toEqual(["explicit-creative-intent"]);
     expect(getCreativeRecommendationReasonLabel(recommendation, "zh")).toBe("已收录文创作品");
   });
+
+  it("recommends the current project for a constrained water-culture creative query", () => {
+    expect(
+      recommendCreativeProjects({
+        question: "江苏水文化有什么文创？",
+        retrievalResults: [waterwaysResult],
+      }).map((recommendation) => recommendation.project.slug),
+    ).toEqual(["water-spirit-global-voyage"]);
+  });
+
+  it.each([
+    {
+      question: "江苏非遗有什么文创？",
+      result: createRetrievalResult({
+        section: "heritage",
+        title: "江苏非遗技艺",
+        content: "江苏非遗包含传统技艺、民俗与表演艺术。",
+      }),
+    },
+    {
+      question: "江苏美食有什么文创？",
+      result: createRetrievalResult({
+        section: "food",
+        title: "江苏特色美食",
+        content: "江苏各地形成了丰富多样的饮食文化。",
+      }),
+    },
+    {
+      question: "江苏历史有什么文创？",
+      result: createRetrievalResult({
+        section: "history",
+        title: "江苏历史文化",
+        content: "江苏历史文化源远流长，留下众多历史遗存。",
+      }),
+    },
+  ])("does not recommend a project without a matching project signal: $question", ({ question, result }) => {
+    expect(recommendCreativeProjects({ question, retrievalResults: [result] })).toEqual([]);
+  });
+
+  it("does not let incidental water wording override a heritage constraint", () => {
+    const heritageResult = createRetrievalResult({
+      section: "heritage",
+      title: "江苏非遗与水乡生活",
+      content: "这项非遗产生于水乡生活，也反映了当地水文化。",
+    });
+
+    expect(
+      recommendCreativeProjects({
+        question: "江苏非遗有什么文创？",
+        retrievalResults: [heritageResult],
+      }),
+    ).toEqual([]);
+  });
+
+  it.each(["火星有什么文创？", "Python 有什么文创？"])(
+    "does not recommend anything for an out-of-domain creative query: %s",
+    (question) => {
+      expect(recommendCreativeProjects({ question, retrievalResults: [] })).toEqual([]);
+    },
+  );
 
   it.each([
     {

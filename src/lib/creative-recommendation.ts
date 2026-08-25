@@ -1,8 +1,13 @@
 import { getPublishedCreativeProjects } from "@/lib/creative";
 import { detectQueryCities } from "@/rag/city-detection";
+import { MIN_RESULT_SCORE } from "@/rag/scoring";
 import type { RetrievalResult } from "@/rag/types";
 import type { CitySlug, Language } from "@/types/city";
-import type { CreativeProject, CreativeTheme } from "@/types/creative";
+import type {
+  CreativeCulturalLink,
+  CreativeProject,
+  CreativeTheme,
+} from "@/types/creative";
 
 export type CreativeRecommendationReason =
   | "explicit-creative-intent"
@@ -35,8 +40,21 @@ export const CREATIVE_RECOMMENDATION_WEIGHTS = Object.freeze({
 });
 
 export const MIN_CREATIVE_RECOMMENDATION_SCORE = 5;
-export const MIN_CREATIVE_RETRIEVAL_SCORE = 2.4;
 export const MAX_CREATIVE_RECOMMENDATIONS = 3;
+
+export const GENERIC_CREATIVE_LOOKUP_QUERIES = [
+  "有什么文创",
+  "你们有什么文创",
+  "有哪些文创",
+  "你们有哪些文创",
+  "水灵有什么文创",
+  "水灵有哪些文创",
+  "what creative products are available",
+  "what cultural creative products are available",
+  "do you have any creative products",
+  "do you have any souvenirs",
+  "what souvenirs are available",
+] as const;
 
 export const EXPLICIT_CREATIVE_QUERY_SIGNALS = [
   "文创",
@@ -83,6 +101,16 @@ export const THEME_QUERY_SIGNALS: Record<
     exact: ["国际交流", "中外交流", "international exchange", "cross-cultural exchange"],
     strong: ["万国", "跨文化", "global exchange", "cross-cultural"],
   },
+};
+
+export const CULTURAL_LINK_QUERY_SIGNALS: Partial<
+  Record<CreativeCulturalLink["type"], readonly string[]>
+> = {
+  waterways: ["大运河", "运河", "水系", "水乡", "grand canal", "canal", "waterway"],
+  heritage: ["非遗", "非物质文化遗产", "intangible cultural heritage"],
+  history: ["历史", "历史文化", "history", "historical culture"],
+  food: ["美食", "饮食", "菜肴", "吃什么", "好吃的", "food", "cuisine"],
+  story: ["故事", "传说", "民间故事", "story", "legend"],
 };
 
 const REASON_ORDER: readonly CreativeRecommendationReason[] = [
@@ -148,8 +176,24 @@ export function getCreativeQueryThemes(question: string): CreativeTheme[] {
   });
 }
 
+export function getCreativeQueryCulturalLinkTypes(
+  question: string,
+): CreativeCulturalLink["type"][] {
+  const normalizedQuestion = normalizeRecommendationText(question);
+  return (Object.keys(CULTURAL_LINK_QUERY_SIGNALS) as CreativeCulturalLink["type"][])
+    .filter((type) =>
+      includesAnySignal(
+        normalizedQuestion,
+        CULTURAL_LINK_QUERY_SIGNALS[type] ?? [],
+      ),
+    );
+}
+
 export function isCreativeManifestLookup(question: string) {
-  return hasExplicitCreativeIntent(question) && getCreativeQueryThemes(question).length === 0;
+  const normalizedQuestion = normalizeRecommendationText(question);
+  return GENERIC_CREATIVE_LOOKUP_QUERIES.some(
+    (genericQuery) => normalizeRecommendationText(genericQuery) === normalizedQuestion,
+  );
 }
 
 function matchesProjectSection(project: CreativeProject, results: readonly RetrievalResult[]) {
@@ -209,8 +253,11 @@ export function recommendCreativeProjects({
   if (!normalizedQuestion) return [];
 
   const explicitCreativeIntent = hasExplicitCreativeIntent(question);
+  const genericCreativeLookup = isCreativeManifestLookup(question);
+  const queryThemes = getCreativeQueryThemes(question);
+  const queryCulturalLinkTypes = getCreativeQueryCulturalLinkTypes(question);
   const validResults = retrievalResults.filter(
-    (result) => result.score >= MIN_CREATIVE_RETRIEVAL_SCORE,
+    (result) => result.score >= MIN_RESULT_SCORE,
   );
   if (!explicitCreativeIntent && validResults.length === 0) return [];
 
@@ -248,7 +295,12 @@ export function recommendCreativeProjects({
       reasons.add("theme");
     }
 
-    const hasSectionMatch = matchesProjectSection(project, validResults);
+    const hasQueryThemeMatch = project.themes.some((theme) => queryThemes.includes(theme));
+    const hasQueryCulturalLinkMatch = project.culturalLinks.some((link) =>
+      queryCulturalLinkTypes.includes(link.type),
+    );
+    const hasSectionMatch =
+      hasQueryCulturalLinkMatch || matchesProjectSection(project, validResults);
     if (hasSectionMatch) {
       score += CREATIVE_RECOMMENDATION_WEIGHTS.matchingSection;
       reasons.add("section");
@@ -259,13 +311,37 @@ export function recommendCreativeProjects({
       score += CREATIVE_RECOMMENDATION_WEIGHTS.exactCity;
       reasons.add("city");
     }
-    if (currentCity && project.citySlugs.includes(currentCity)) {
+    const hasCurrentCityMatch = Boolean(
+      currentCity && project.citySlugs.includes(currentCity),
+    );
+    if (hasCurrentCityMatch) {
       score += CREATIVE_RECOMMENDATION_WEIGHTS.currentCity;
       reasons.add("city");
     }
 
+    const hasConstrainedProjectSignal =
+      hasQueryThemeMatch ||
+      hasQueryCulturalLinkMatch ||
+      hasExplicitCityMatch ||
+      hasCurrentCityMatch;
+    if (
+      explicitCreativeIntent &&
+      !genericCreativeLookup &&
+      !hasConstrainedProjectSignal
+    ) {
+      continue;
+    }
+
+    const hasProjectSignal =
+      matchedThemes.length > 0 ||
+      hasSectionMatch ||
+      hasExplicitCityMatch ||
+      hasEvidenceCityMatch ||
+      hasCurrentCityMatch;
     const hasCulturalOrCreativeSignal =
-      explicitCreativeIntent || matchedThemes.length > 0 || hasSectionMatch;
+      (explicitCreativeIntent && (genericCreativeLookup || hasProjectSignal)) ||
+      matchedThemes.length > 0 ||
+      hasSectionMatch;
     if (!hasCulturalOrCreativeSignal || score < MIN_CREATIVE_RECOMMENDATION_SCORE) continue;
 
     recommendationsBySlug.set(project.slug, {
