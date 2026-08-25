@@ -37,9 +37,11 @@ describe("creative routes and page states", () => {
 
     expect(html).toContain("文创中心");
     expect(html).toContain("一水灵韵，万国舟行");
+    expect(html).toContain("cover-overview.webp");
+    expect(html).toContain('fetchPriority="high"');
   });
 
-  it("renders an empty-gallery state without crashing", () => {
+  it("renders the real cover and all gallery groups without placeholder copy", () => {
     const path = getCreativeProjectPath("water-spirit-global-voyage");
     const html = renderAt(
       path,
@@ -49,7 +51,17 @@ describe("creative routes and page states", () => {
     );
 
     expect(html).toContain("一水灵韵，万国舟行");
-    expect(html).toContain("暂无可公开加载的 Gallery 素材");
+    expect(html).toContain("cover-overview.webp");
+    expect(html).toContain("gift-set.webp");
+    expect(html).toContain("collection-overview.webp");
+    expect(html).toContain("packaging-box.webp");
+    expect(html).toContain("cap.webp");
+    expect(html).toContain("phone-cases.webp");
+    expect(html).toContain("mugs.webp");
+    expect(html).toContain('loading="lazy"');
+    expect(html).not.toContain("暂无可公开加载的 Gallery 素材");
+    expect(html).not.toContain("待用户补充");
+    expect(html).not.toContain("Stage 8B");
   });
 
   it("renders a recoverable not-found state for an unknown slug", () => {

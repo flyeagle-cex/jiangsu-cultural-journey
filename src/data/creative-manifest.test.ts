@@ -43,13 +43,42 @@ describe("creative manifest", () => {
     }
   });
 
-  it("registers source artwork without inventing public asset URLs", () => {
+  it("maps the twelve source boards to one cover and eleven gallery assets", () => {
     const [project] = creativeManifest;
 
     expect(project.sourceArchive.entryCount).toBe(12);
     expect(project.sourceAssets).toHaveLength(12);
-    expect(project.coverAsset).toBeNull();
-    expect(project.gallery).toEqual([]);
+    expect(project.coverAsset?.id).toBe("cover-overview");
+    expect(project.gallery).toHaveLength(11);
+    expect(project.gallery.map((asset) => asset.id)).toEqual([
+      "gift-set",
+      "collection-overview",
+      "packaging-box",
+      "cap",
+      "phone-cases",
+      "eye-mask",
+      "tote-bag",
+      "drawstring-pouch",
+      "bottle",
+      "badges",
+      "mugs",
+    ]);
+  });
+
+  it("provides factual bilingual alt text and intrinsic dimensions for public assets", () => {
+    const [project] = creativeManifest;
+    const assets = [project.coverAsset, ...project.gallery].filter(
+      (asset): asset is NonNullable<typeof asset> => asset !== null,
+    );
+
+    expect(assets).toHaveLength(12);
+    for (const asset of assets) {
+      expect(asset.alt.zh).toMatch(/[\u3400-\u9fff]/u);
+      expect(asset.alt.en).toMatch(/[A-Za-z]/);
+      expect(asset.width).toBe(1273);
+      expect(asset.height).toBe(1800);
+      expect(asset.src.endsWith(".webp")).toBe(true);
+    }
   });
 
   it("records the Jiangsu scope as derived metadata", () => {

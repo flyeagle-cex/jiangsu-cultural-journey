@@ -2,11 +2,15 @@ import { useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 
-import { creativeCategoryLabels } from "@/data/creative-manifest";
+import CreativeImageViewer from "@/components/CreativeImageViewer";
 import { useLanguage } from "@/context/LanguageContext";
+import {
+  creativeCategoryLabels,
+  creativeThemeLabels,
+} from "@/data/creative-manifest";
 import { CREATIVE_CENTER_PATH, getCreativeProjectBySlug } from "@/lib/creative";
 import type { Language } from "@/types/city";
-import type { CreativeProject } from "@/types/creative";
+import type { CreativeAsset, CreativeProject } from "@/types/creative";
 
 function CreativeDetailNotFound({ language }: { language: Language }) {
   useEffect(() => {
@@ -23,7 +27,7 @@ function CreativeDetailNotFound({ language }: { language: Language }) {
         <h1 className="mt-5 text-3xl font-semibold">
           {language === "zh" ? "未找到这件文创作品" : "Creative project not found"}
         </h1>
-        <p className="mt-4 max-w-xl text-base leading-7 text-[#EAF1F9]">
+        <p className="mt-4 max-w-xl text-base leading-7 text-[#EAF1F9]/90">
           {language === "zh"
             ? "该作品链接不存在或尚未登记，请返回文创中心查看已收录作品。"
             : "This project link does not exist or has not been registered. Return to the Creative Center to browse available work."}
@@ -41,34 +45,63 @@ function CreativeDetailNotFound({ language }: { language: Language }) {
 }
 
 function ProjectMetadata({ language, project }: { language: Language; project: CreativeProject }) {
+  const scopeLabel = {
+    jiangsu: language === "zh" ? "江苏主题" : "Jiangsu-wide",
+    city: language === "zh" ? "城市主题" : "City-linked",
+    "multi-city": language === "zh" ? "多城市主题" : "Multi-city",
+  }[project.scope];
   const rows = [
-    {
-      label: language === "zh" ? "作品范围" : "Scope",
-      value: project.scope === "jiangsu" ? (language === "zh" ? "全江苏主题" : "Jiangsu-wide") : project.scope,
-    },
+    { label: language === "zh" ? "作品范围" : "Scope", value: scopeLabel },
     {
       label: language === "zh" ? "作品状态" : "Status",
-      value: project.status === "published" ? (language === "zh" ? "正式作品" : "Official project") : language === "zh" ? "草稿" : "Draft",
+      value:
+        project.status === "published"
+          ? language === "zh"
+            ? "正式作品"
+            : "Published project"
+          : language === "zh"
+            ? "草稿"
+            : "Draft",
     },
-    {
-      label: language === "zh" ? "设计作者" : "Designer",
-      value: project.designer ?? (language === "zh" ? "待用户补充" : "Awaiting user content"),
-    },
-    {
-      label: language === "zh" ? "创作年份" : "Year",
-      value: project.year?.toString() ?? (language === "zh" ? "待用户补充" : "Awaiting user content"),
-    },
-  ];
+    project.designer
+      ? { label: language === "zh" ? "设计作者" : "Designer", value: project.designer }
+      : null,
+    project.year
+      ? { label: language === "zh" ? "创作年份" : "Year", value: project.year.toString() }
+      : null,
+  ].filter((row): row is { label: string; value: string } => row !== null);
 
   return (
-    <dl className="border-t border-[#C1DDDB]/25">
+    <dl className="border-t border-[#C1DDDB]/26">
       {rows.map((row) => (
-        <div className="grid gap-2 border-b border-[#C1DDDB]/25 py-4 sm:grid-cols-[9rem_minmax(0,1fr)]" key={row.label}>
-          <dt className="text-sm text-[#EAF1F9]">{row.label}</dt>
+        <div
+          className="grid gap-1 border-b border-[#C1DDDB]/26 py-3.5 sm:grid-cols-[7rem_minmax(0,1fr)]"
+          key={row.label}
+        >
+          <dt className="text-sm text-[#C1DDDB]">{row.label}</dt>
           <dd className="text-sm text-[#EAF1F9]">{row.value}</dd>
         </div>
       ))}
     </dl>
+  );
+}
+
+function ArtworkFigure({
+  asset,
+  language,
+  eager = false,
+}: {
+  asset: CreativeAsset;
+  language: Language;
+  eager?: boolean;
+}) {
+  return (
+    <figure className="border border-[#C1DDDB]/28 bg-[#F6F7F4] p-2 sm:p-3">
+      <CreativeImageViewer asset={asset} eager={eager} language={language} />
+      <figcaption className="border-t border-[#5E6C82]/20 px-2 pb-1 pt-3 text-xs leading-5 text-[#46586A]">
+        {asset.alt[language]}
+      </figcaption>
+    </figure>
   );
 }
 
@@ -85,139 +118,146 @@ export default function CreativeDetailPage() {
 
   if (!project) return <CreativeDetailNotFound language={language} />;
 
+  const collectionAssets = project.gallery.filter(
+    (asset) => asset.kind === "scene" || asset.kind === "design_board",
+  );
+  const packagingAssets = project.gallery.filter((asset) => asset.kind === "packaging");
+  const productAssets = project.gallery.filter((asset) => asset.kind === "product");
+
   return (
     <main
-      className="min-h-screen bg-[#5E6C82] px-4 pb-24 pt-24 text-[#EAF1F9] sm:px-6 lg:px-10"
+      className="min-h-screen bg-[#5E6C82] px-4 pb-32 pt-24 text-[#EAF1F9] sm:px-6 lg:px-10"
       id="main-content"
     >
       <article className="mx-auto max-w-[1240px]">
         <Link
-          className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[#EAF1F9] outline-none transition-colors duration-150 hover:text-white focus-visible:ring-2 focus-visible:ring-[#EAC459]"
+          className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[#EAF1F9] outline-none transition-colors duration-150 hover:text-[#EAC459] focus-visible:ring-2 focus-visible:ring-[#EAC459]"
           to={CREATIVE_CENTER_PATH}
         >
           <ArrowLeft aria-hidden="true" className="size-4 text-[#EAC459]" />
           {language === "zh" ? "返回文创中心" : "Back to Creative Center"}
         </Link>
 
-        <header className="mt-7 grid gap-10 border-y border-[#C1DDDB]/30 py-10 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-end">
+        <header className="mt-6 grid gap-10 border-y border-[#C1DDDB]/30 py-10 lg:grid-cols-[minmax(18rem,0.72fr)_minmax(0,1fr)] lg:items-start lg:gap-16">
           <div>
             <h1 className="font-display text-4xl font-semibold leading-tight sm:text-5xl">
               {project.name[language]}
             </h1>
             {language === "en" && project.metadataProvenance.nameEn === "temporaryTranslation" && (
-              <p className="mt-3 text-sm text-[#EAF1F9]">Temporary English title · Official translation pending</p>
+              <p className="mt-3 text-xs text-[#C1DDDB]">Working English translation</p>
             )}
-            <p className="mt-6 max-w-2xl text-base leading-7 text-[#EAF1F9]">
-              {language === "zh"
-                ? "本页已建立作品资料与文化关联结构；真实设计图将在 Stage 8B 完成 Web 素材整理后接入。"
-                : "This page establishes the project record and its cultural links. Original artwork will be added after web asset preparation in Stage 8B."}
+            {project.subtitle && (
+              <p className="mt-5 max-w-xl text-lg leading-8 text-[#C1DDDB]">
+                {project.subtitle[language]}
+              </p>
+            )}
+            {project.description && (
+              <p className="mt-5 max-w-xl text-base leading-7 text-[#EAF1F9]/90">
+                {project.description[language]}
+              </p>
+            )}
+
+            <p className="mt-7 text-sm leading-7 text-[#EAC459]">
+              {project.themes.map((theme) => creativeThemeLabels[theme][language]).join(" · ")}
             </p>
+            <div className="mt-8 max-w-md">
+              <ProjectMetadata language={language} project={project} />
+            </div>
           </div>
-          <div className="border-l border-[#EAC459]/65 pl-5">
-            <p className="text-sm text-[#EAF1F9]">{language === "zh" ? "来源素材" : "Source artwork"}</p>
-            <p className="mt-2 text-3xl font-semibold tabular-nums text-[#EAC459]">
-              {project.sourceAssets.length}
-            </p>
-            <p className="mt-1 text-sm text-[#EAF1F9]">{language === "zh" ? "张原始设计图已清点" : "original design files inventoried"}</p>
-          </div>
+
+          {project.coverAsset && <ArtworkFigure asset={project.coverAsset} eager language={language} />}
         </header>
 
-        <div className="grid gap-12 py-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.65fr)]">
-          <div className="space-y-12">
-            <section aria-labelledby="creative-cover-heading">
-              <h2 className="text-2xl font-semibold" id="creative-cover-heading">
-                {language === "zh" ? "作品封面" : "Project Cover"}
-              </h2>
-              {project.coverAsset ? (
-                <img
-                  alt={project.coverAsset.alt[language]}
-                  className="mt-6 h-auto w-full border border-[#C1DDDB]/25"
-                  height={project.coverAsset.height}
-                  src={project.coverAsset.src}
-                  width={project.coverAsset.width}
-                />
-              ) : (
-                <div className="mt-6 border-y border-[#C1DDDB]/28 py-14 text-center text-sm leading-6 text-[#EAF1F9]">
-                  {language === "zh" ? "封面素材待 Web 化整理后接入" : "Cover artwork awaits web asset preparation"}
-                </div>
-              )}
-            </section>
+        {project.concept && (
+          <section aria-labelledby="creative-concept-heading" className="border-b border-[#C1DDDB]/24 py-12">
+            <h2 className="font-display text-2xl font-semibold" id="creative-concept-heading">
+              {language === "zh" ? "设计理念" : "Design Concept"}
+            </h2>
+            <p className="mt-5 max-w-3xl text-base leading-8 text-[#EAF1F9]/90">
+              {project.concept[language]}
+            </p>
+          </section>
+        )}
 
-            <section aria-labelledby="creative-concept-heading">
-              <h2 className="text-2xl font-semibold" id="creative-concept-heading">
-                {language === "zh" ? "设计理念" : "Design Concept"}
-              </h2>
-              <p className="mt-5 max-w-3xl border-l border-[#D6CDBE]/60 pl-5 text-base leading-7 text-[#EAF1F9]">
-                {project.concept?.[language] ??
-                  (language === "zh" ? "设计理念待用户提供正式文案。" : "Official design concept text has not yet been supplied.")}
-              </p>
-            </section>
-
-            <section aria-labelledby="creative-gallery-heading">
-              <h2 className="text-2xl font-semibold" id="creative-gallery-heading">
-                {language === "zh" ? "作品图集" : "Project Gallery"}
-              </h2>
-              {project.gallery.length > 0 ? (
-                <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                  {project.gallery.map((asset) => (
-                    <img
-                      alt={asset.alt[language]}
-                      className="h-auto w-full border border-[#C1DDDB]/25"
-                      height={asset.height}
-                      key={asset.id}
-                      loading="lazy"
-                      src={asset.src}
-                      width={asset.width}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <p className="mt-6 border-y border-[#C1DDDB]/28 py-8 text-sm leading-6 text-[#EAF1F9]" role="status">
-                  {language === "zh"
-                    ? "暂无可公开加载的 Gallery 素材；12 张原始设计图已完成只读登记。"
-                    : "No web-ready gallery assets are available yet; 12 original design files have been inventoried read-only."}
-                </p>
-              )}
-            </section>
+        <section aria-labelledby="creative-gallery-heading" className="pt-14">
+          <div className="max-w-2xl">
+            <h2 className="font-display text-3xl font-semibold" id="creative-gallery-heading">
+              {language === "zh" ? "作品图集" : "Project Gallery"}
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-[#C1DDDB]">
+              {language === "zh"
+                ? "以下展示保持原始设计稿比例与构图；点击图片可查看完整大图。"
+                : "The original proportions and composition are preserved. Select an image to open the full view."}
+            </p>
           </div>
 
-          <aside className="space-y-10">
-            <section aria-labelledby="creative-metadata-heading">
-              <h2 className="text-xl font-semibold" id="creative-metadata-heading">
-                {language === "zh" ? "基本资料" : "Project Metadata"}
-              </h2>
-              <div className="mt-5">
-                <ProjectMetadata language={language} project={project} />
+          {collectionAssets.length > 0 && (
+            <section aria-labelledby="creative-collection-heading" className="mt-12">
+              <h3 className="border-b border-[#C1DDDB]/28 pb-4 text-xl font-semibold" id="creative-collection-heading">
+                {language === "zh" ? "系列组合" : "Collection Views"}
+              </h3>
+              <div className="mt-6 grid gap-6 md:grid-cols-2">
+                {collectionAssets.map((asset) => (
+                  <ArtworkFigure asset={asset} key={asset.id} language={language} />
+                ))}
               </div>
             </section>
+          )}
 
-            <section aria-labelledby="creative-categories-detail-heading">
-              <h2 className="text-xl font-semibold" id="creative-categories-detail-heading">
-                {language === "zh" ? "作品类别" : "Categories"}
-              </h2>
-              <ul className="mt-5 divide-y divide-[#C1DDDB]/22 border-y border-[#C1DDDB]/22">
-                {project.categories.map((category) => (
-                  <li className="py-3 text-sm text-[#EAF1F9]" key={category}>
-                    {creativeCategoryLabels[category][language]}
-                  </li>
+          {packagingAssets.length > 0 && (
+            <section aria-labelledby="creative-packaging-heading" className="mt-14">
+              <h3 className="border-b border-[#C1DDDB]/28 pb-4 text-xl font-semibold" id="creative-packaging-heading">
+                {language === "zh" ? "包装设计" : "Packaging"}
+              </h3>
+              <div className="mt-6 max-w-2xl">
+                {packagingAssets.map((asset) => (
+                  <ArtworkFigure asset={asset} key={asset.id} language={language} />
                 ))}
-              </ul>
+              </div>
             </section>
+          )}
 
-            <section aria-labelledby="creative-cultural-links-heading">
-              <h2 className="text-xl font-semibold" id="creative-cultural-links-heading">
-                {language === "zh" ? "文化关联" : "Cultural Links"}
-              </h2>
-              <ul className="mt-5 divide-y divide-[#C1DDDB]/22 border-y border-[#C1DDDB]/22">
-                {project.culturalLinks.map((link) => (
-                  <li className="py-3 text-sm text-[#EAF1F9]" key={`${link.type}-${link.title.zh}`}>
-                    {link.title[language]}
-                  </li>
+          {productAssets.length > 0 && (
+            <section aria-labelledby="creative-products-heading" className="mt-14">
+              <h3 className="border-b border-[#C1DDDB]/28 pb-4 text-xl font-semibold" id="creative-products-heading">
+                {language === "zh" ? "单品设计" : "Individual Products"}
+              </h3>
+              <div className="mt-6 grid gap-6 md:grid-cols-2">
+                {productAssets.map((asset) => (
+                  <ArtworkFigure asset={asset} key={asset.id} language={language} />
                 ))}
-              </ul>
+              </div>
             </section>
-          </aside>
-        </div>
+          )}
+        </section>
+
+        <footer className="mt-16 grid gap-10 border-t border-[#C1DDDB]/30 pt-10 md:grid-cols-2">
+          <section aria-labelledby="creative-categories-detail-heading">
+            <h2 className="text-lg font-semibold" id="creative-categories-detail-heading">
+              {language === "zh" ? "作品类别" : "Categories"}
+            </h2>
+            <ul className="mt-4 divide-y divide-[#C1DDDB]/24 border-y border-[#C1DDDB]/24">
+              {project.categories.map((category) => (
+                <li className="py-3 text-sm text-[#EAF1F9]/90" key={category}>
+                  {creativeCategoryLabels[category][language]}
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section aria-labelledby="creative-cultural-links-heading">
+            <h2 className="text-lg font-semibold" id="creative-cultural-links-heading">
+              {language === "zh" ? "文化关联" : "Cultural Links"}
+            </h2>
+            <ul className="mt-4 divide-y divide-[#C1DDDB]/24 border-y border-[#C1DDDB]/24">
+              {project.culturalLinks.map((link) => (
+                <li className="py-3 text-sm text-[#EAF1F9]/90" key={`${link.type}-${link.title.zh}`}>
+                  {link.title[language]}
+                </li>
+              ))}
+            </ul>
+          </section>
+        </footer>
       </article>
     </main>
   );
