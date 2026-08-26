@@ -6,6 +6,7 @@ import { ChevronDown, LoaderCircle, MapPin, Search, X } from "lucide-react";
 import { requestShuiLingAnswer, ShuiLingApiError } from "@/assistant/api";
 import type { ShuiLingChatErrorCode, ShuiLingChatResponse } from "@/assistant/types";
 import { CreativeRecommendationBlock } from "@/components/CreativeRecommendationCard";
+import { ShuiLingJourneyRecommendationsCard } from "@/components/ShuiLingJourneyRecommendationsCard";
 import { ShuiLingMark } from "@/components/ShuiLingMark";
 import { ShuiLingSavedItemsCard } from "@/components/ShuiLingSavedItemsCard";
 import { useLanguage } from "@/context/LanguageContext";
@@ -15,6 +16,11 @@ import {
   isCreativeManifestLookup,
   recommendCreativeProjects,
 } from "@/lib/creative-recommendation";
+import { recommendJourneyCities } from "@/lib/journey-recommendation";
+import {
+  detectJourneyPersonalizationIntent,
+  type JourneyPersonalizationIntent,
+} from "@/lib/shuiling-personalization";
 import {
   buildSavedStateResult,
   detectSavedStateIntent,
@@ -156,9 +162,11 @@ export function ShuiLingRetrievalPanel({
   const [assistantResponse, setAssistantResponse] = useState<ShuiLingChatResponse | null>(null);
   const [assistantError, setAssistantError] = useState<ShuiLingChatErrorCode | null>(null);
   const [savedStateIntent, setSavedStateIntent] = useState<ResolvedSavedStateIntent | null>(null);
+  const [journeyPersonalizationIntent, setJourneyPersonalizationIntent] =
+    useState<JourneyPersonalizationIntent>(null);
   const [phase, setPhase] = useState<AssistantPhase>("idle");
   const [error, setError] = useState(false);
-  const { favoriteCities, favoriteCreativeProjects } = useSavedItems();
+  const { favoriteCities, favoriteCreativeProjects, interests } = useSavedItems();
   const copy = COPY[language];
   const currentCity = citySlug ? cityIdentityBySlug[citySlug] : undefined;
   const contextLabel = currentCity
@@ -173,7 +181,13 @@ export function ShuiLingRetrievalPanel({
   }, [copy.results, language, response]);
 
   const creativeRecommendations = useMemo(() => {
-    if (savedStateIntent || !submittedQuestion || phase === "idle" || phase === "retrieving") return [];
+    if (
+      savedStateIntent ||
+      journeyPersonalizationIntent ||
+      !submittedQuestion ||
+      phase === "idle" ||
+      phase === "retrieving"
+    ) return [];
     const manifestLookup = isCreativeManifestLookup(submittedQuestion);
     if (assistantResponse?.insufficientEvidence && !manifestLookup) return [];
     return recommendCreativeProjects({
@@ -181,7 +195,19 @@ export function ShuiLingRetrievalPanel({
       retrievalResults: response?.results ?? [],
       currentCity: citySlug,
     });
-  }, [assistantResponse?.insufficientEvidence, citySlug, phase, response?.results, savedStateIntent, submittedQuestion]);
+  }, [assistantResponse?.insufficientEvidence, citySlug, journeyPersonalizationIntent, phase, response?.results, savedStateIntent, submittedQuestion]);
+
+  const journeyRecommendations = useMemo(
+    () =>
+      journeyPersonalizationIntent
+        ? recommendJourneyCities({
+            interests,
+            favoriteCities,
+            limit: 3,
+          })
+        : [],
+    [favoriteCities, interests, journeyPersonalizationIntent],
+  );
 
   const savedStateResult = useMemo(
     () =>
@@ -203,6 +229,7 @@ export function ShuiLingRetrievalPanel({
     setAssistantResponse(null);
     setAssistantError(null);
     setSavedStateIntent(null);
+    setJourneyPersonalizationIntent(null);
     setPhase("idle");
     setError(false);
   }, [citySlug]);
@@ -240,9 +267,19 @@ export function ShuiLingRetrievalPanel({
     setResponse(null);
     setAssistantResponse(null);
     setAssistantError(null);
+    setSavedStateIntent(null);
+    setJourneyPersonalizationIntent(null);
     const savedIntent = detectSavedStateIntent(question);
     setSavedStateIntent(savedIntent);
     if (savedIntent) {
+      requestControllerRef.current = null;
+      setPhase("answered");
+      return;
+    }
+
+    const personalizationIntent = detectJourneyPersonalizationIntent(question);
+    setJourneyPersonalizationIntent(personalizationIntent);
+    if (personalizationIntent) {
       requestControllerRef.current = null;
       setPhase("answered");
       return;
@@ -471,6 +508,15 @@ export function ShuiLingRetrievalPanel({
                         language={language}
                         onNavigate={() => onOpenChange(false)}
                         result={savedStateResult}
+                      />
+                    )}
+
+                    {journeyPersonalizationIntent && (
+                      <ShuiLingJourneyRecommendationsCard
+                        interests={interests}
+                        language={language}
+                        onNavigate={() => onOpenChange(false)}
+                        recommendations={journeyRecommendations}
                       />
                     )}
 
