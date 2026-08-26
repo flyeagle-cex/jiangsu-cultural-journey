@@ -4,6 +4,7 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import CreativeImageViewer from "@/components/CreativeImageViewer";
 import { useLanguage } from "@/context/LanguageContext";
+import { BRAND_NAME } from "@/data/brand";
 import {
   creativeCategoryLabels,
   creativeThemeLabels,
@@ -32,7 +33,7 @@ export default function CreativeCenterPage() {
     : publishedProjects;
 
   useEffect(() => {
-    document.title = language === "zh" ? "文创中心｜水韵江苏" : "Creative Center | Jiangsu Cultural Journey";
+    document.title = `${language === "zh" ? "文创中心" : "Creative Center"}｜${BRAND_NAME[language]}`;
   }, [language]);
 
   return (

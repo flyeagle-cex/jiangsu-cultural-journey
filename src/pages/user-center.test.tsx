@@ -56,7 +56,10 @@ describe("User Center page", () => {
       favoriteCreativeProjects: [],
     });
 
-    expect(html).toContain("我的水韵");
+    expect(html).toContain("我的灵舟之旅");
+    expect(html).toContain('data-city-ambient="user"');
+    expect(html).toContain('data-skyline="jiangsu-journey"');
+    expect(html).toContain("运河桥、塔影与江南水岸");
     expect(html).toContain("还没有收藏城市。");
     expect(html).toContain("还没有收藏文创作品。");
     expect(html).toContain('href="/#cities"');
@@ -103,7 +106,7 @@ describe("User Center page", () => {
       favoriteCreativeProjects: [],
     });
 
-    expect(html).toContain("My Jiangsu Journey");
+    expect(html).toContain("My Shuiling Journey");
     expect(html).toContain("Saved Cities");
     expect(html).toContain("Saved Creative Works");
     expect(html).toContain("No cities saved yet.");

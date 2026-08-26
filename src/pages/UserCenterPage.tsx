@@ -2,9 +2,11 @@ import { useEffect } from "react";
 import { ArrowRight, BookmarkX, MapPin, Palette } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { CityAmbientLayer } from "@/components/CityAmbientLayer";
 import { Footer } from "@/components/Footer";
 import { useLanguage } from "@/context/LanguageContext";
 import { useSavedItems } from "@/context/UserSavedStateContext";
+import { BRAND_NAME } from "@/data/brand";
 import { cityManifest } from "@/data/city-manifest";
 import { getCityHeroVisual } from "@/data/city-media";
 import { creativeThemeLabels } from "@/data/creative-manifest";
@@ -37,8 +39,8 @@ export default function UserCenterPage() {
     setDocumentMeta({
       title:
         language === "zh"
-          ? "我的水韵 · 水韵江苏"
-          : "My Jiangsu Journey · Jiangsu Cultural Journey",
+          ? `我的灵舟之旅 · ${BRAND_NAME.zh}`
+          : `My Shuiling Journey · ${BRAND_NAME.en}`,
       description:
         language === "zh"
           ? "收藏你想再次探索的江苏城市与文化创意。"
@@ -48,11 +50,12 @@ export default function UserCenterPage() {
 
   return (
     <>
-      <main className="min-h-screen bg-[#5E6C82] pt-16 text-[#EAF1F9]" id="main-content">
-        <header className="border-b border-[#C1DDDB]/30 bg-[#42769D] px-4 py-12 sm:px-6 sm:py-16 lg:px-10">
+      <main className="user-center-field relative isolate min-h-screen overflow-hidden bg-[#5E6C82] pt-16 text-[#EAF1F9]" id="main-content">
+        <CityAmbientLayer variant="user" />
+        <header className="relative z-10 border-b border-[#C1DDDB]/30 bg-[#42769D]/95 px-4 py-12 sm:px-6 sm:py-16 lg:px-10">
           <div className="mx-auto max-w-[1240px]">
             <h1 className="font-display text-4xl font-semibold leading-tight sm:text-5xl">
-              {language === "zh" ? "我的水韵" : "My Jiangsu Journey"}
+              {language === "zh" ? "我的灵舟之旅" : "My Shuiling Journey"}
             </h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-[#EAF1F9] sm:text-lg">
               {language === "zh"
@@ -67,7 +70,7 @@ export default function UserCenterPage() {
           </div>
         </header>
 
-        <div className="mx-auto max-w-[1240px] px-4 pb-20 sm:px-6 lg:px-10">
+        <div className="relative z-10 mx-auto max-w-[1240px] px-4 pb-20 sm:px-6 lg:px-10">
           <section aria-labelledby="saved-cities-heading" className="border-b border-[#C1DDDB]/28 py-10 sm:py-12">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>

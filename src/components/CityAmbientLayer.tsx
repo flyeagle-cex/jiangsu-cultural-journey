@@ -1,11 +1,12 @@
 import type { CSSProperties } from "react";
 
-import { CITY_AMBIENT_CONFIGS } from "@/data/city-ambient";
+import { CITY_AMBIENT_CONFIGS, USER_CENTER_AMBIENT_CONFIG } from "@/data/city-ambient";
 import type { CitySkylineKind } from "@/data/city-ambient";
 import type { CitySlug } from "@/types/city";
 
 type CityAmbientLayerProps = {
   citySlug?: CitySlug;
+  variant?: "user";
 };
 
 const CITY_FLOWER_SLOTS = [
@@ -84,17 +85,27 @@ const SKYLINE_PATHS: Record<CitySkylineKind, string[]> = {
     "M242 91v9m-13 7h26m-34 11h42l-7 7h-28l-7-7m7 7v16h28v-16m-41 20h55l-9 9h-37l-9-9m9 9v23h37v-23m-51 27h65",
     "M1030 181V99h18v82m0-78h151l-151 46m117-45v61m-11 0h22M570 162h350l-53 38H626l-56-38m70 0v-31h171v31m-112-31v-26h91",
   ],
+  "jiangsu-journey": [
+    "M-30 181h244m-186 0v-39h168v39M10 142h204c-47-10-78-24-102-46-25 22-56 36-102 46M240 181h232m-198-4c50-58 112-58 164 0M296 177v-28m60 28v-54m59 54v-28",
+    "M665 25v12m-20 9h40m-52 14h64l-10 10h-44l-10-10m12 10v20h40V70m-58 24h76l-12 12h-52l-12-12m12 12v24h52v-24m-72 29h92l-14 14h-64l-14-14m14 14v32m-28 0h120",
+    "M860 181h282m-243 0v-48h204v48m-226-48h249c-55-11-91-27-124-52-34 25-70 41-125 52M930 181v-28h144v28M1190 181h430m-395-4c71-70 206-70 278 0M1260 177v-32m76 32v-67m78 67v-67m75 67v-32",
+  ],
 };
 
-export function CityAmbientLayer({ citySlug }: CityAmbientLayerProps) {
-  const config = citySlug ? CITY_AMBIENT_CONFIGS[citySlug] : undefined;
-  const flowers = citySlug ? CITY_FLOWER_SLOTS : GENERIC_FLOWER_SLOTS;
+export function CityAmbientLayer({ citySlug, variant }: CityAmbientLayerProps) {
+  const config = citySlug
+    ? CITY_AMBIENT_CONFIGS[citySlug]
+    : variant === "user"
+      ? USER_CENTER_AMBIENT_CONFIG
+      : undefined;
+  const flowers = config ? CITY_FLOWER_SLOTS : GENERIC_FLOWER_SLOTS;
+  const ambientId = citySlug ?? variant ?? "generic";
 
   return (
     <div
       aria-hidden="true"
       className="city-ambient-layer"
-      data-city-ambient={citySlug ?? "generic"}
+      data-city-ambient={ambientId}
       data-city-landmark={config?.landmark}
       style={{ "--ambient-line": config?.lineColor ?? "#C1DDDB" } as CSSProperties}
     >

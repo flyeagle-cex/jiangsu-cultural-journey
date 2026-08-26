@@ -65,7 +65,7 @@ function UserRouteLoading() {
       id="main-content"
     >
       <p className="border-y border-[#C1DDDB]/30 px-10 py-8 text-sm text-[#C1DDDB]" role="status">
-        {language === "zh" ? "正在载入我的水韵…" : "Loading My Jiangsu Journey…"}
+        {language === "zh" ? "正在载入我的灵舟之旅…" : "Loading My Shuiling Journey…"}
       </p>
     </main>
   );

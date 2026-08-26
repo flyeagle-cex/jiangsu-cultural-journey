@@ -13,7 +13,8 @@ export type CitySkylineKind =
   | "canal-gate"
   | "lake-bridge"
   | "han-gate"
-  | "mountain-harbor";
+  | "mountain-harbor"
+  | "jiangsu-journey";
 
 export type CityAmbientConfig = {
   skyline: CitySkylineKind;
@@ -40,4 +41,10 @@ export const CITY_AMBIENT_CONFIGS: Record<CitySlug, CityAmbientConfig> = {
   suqian: { skyline: "lake-bridge", lineColor: "#C1DDDB", landmark: "骆马湖桥与项王故里城廓" },
   xuzhou: { skyline: "han-gate", lineColor: "#D6CDBE", landmark: "彭城汉阙与云龙山廓" },
   lianyungang: { skyline: "mountain-harbor", lineColor: "#C1DDDB", landmark: "花果山、海港与云台塔影" },
+};
+
+export const USER_CENTER_AMBIENT_CONFIG: CityAmbientConfig = {
+  skyline: "jiangsu-journey",
+  lineColor: "#C1DDDB",
+  landmark: "运河桥、塔影与江南水岸",
 };

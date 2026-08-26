@@ -2,6 +2,7 @@ import { Waves } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { useLanguage } from "@/context/LanguageContext";
+import { BRAND_NAME, BRAND_SLOGAN } from "@/data/brand";
 
 const footerLinks = [
   { to: "/#explore", zh: "探索", en: "Explore" },
@@ -102,11 +103,13 @@ export function Footer() {
                 text-[#F2F5F3]
               "
             >
-              {language === "zh"
-                ? "水韵江苏 · Jiangsu Cultural Journey"
-                : "Jiangsu Cultural Journey · 水韵江苏"}
+              {BRAND_NAME[language]}
             </p>
           </div>
+
+          <p className="mt-4 font-display text-base tracking-wide text-[#EAC459]">
+            {BRAND_SLOGAN[language]}
+          </p>
 
           {/* 简介 */}
           <p
@@ -202,8 +205,8 @@ export function Footer() {
         "
       >
         {language === "zh"
-          ? "© 2026 水韵江苏 · 文化创新比赛 MVP"
-          : "© 2026 Jiangsu Cultural Journey · Cultural innovation showcase MVP"}
+          ? `© 2026 ${BRAND_NAME.zh} · 文化创新比赛 MVP`
+          : `© 2026 ${BRAND_NAME.en} · Cultural innovation showcase MVP`}
       </div>
     </footer>
   );

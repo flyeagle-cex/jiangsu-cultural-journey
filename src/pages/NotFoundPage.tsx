@@ -6,6 +6,7 @@ import { CityAmbientLayer } from "@/components/CityAmbientLayer";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/context/LanguageContext";
+import { BRAND_NAME } from "@/data/brand";
 import { setDocumentMeta } from "@/lib/document-meta";
 
 export function NotFoundPage() {
@@ -13,10 +14,10 @@ export function NotFoundPage() {
 
   useEffect(() => {
     setDocumentMeta({
-      title: language === "zh" ? "页面未找到 · 水韵江苏" : "Page not found · Jiangsu Cultural Journey",
+      title: `${language === "zh" ? "页面未找到" : "Page not found"} · ${BRAND_NAME[language]}`,
       description:
         language === "zh"
-          ? "返回江苏十三城地图，继续探索水韵江苏。"
+          ? `返回江苏十三城地图，继续探索${BRAND_NAME.zh}。`
           : "Return to the map and continue exploring Jiangsu's thirteen cities.",
     });
   }, [language]);

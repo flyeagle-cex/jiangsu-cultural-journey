@@ -4,6 +4,7 @@ import { ArrowDown, Compass } from "lucide-react";
 import { JiangsuMapExplorer } from "@/components/JiangsuMapExplorer";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/context/LanguageContext";
+import { BRAND_NAME, BRAND_SLOGAN } from "@/data/brand";
 import { cn } from "@/lib/utils";
 
 export function Hero() {
@@ -149,9 +150,7 @@ export function Hero() {
                   : "max-w-[12ch] text-[clamp(3.1rem,6vw,6.4rem)]",
               )}
             >
-              {language === "zh"
-                ? "水韵江苏"
-                : "Jiangsu Cultural Journey"}
+              {BRAND_NAME[language]}
             </h1>
 
             {/* 中英文副标题 */}
@@ -166,9 +165,7 @@ export function Hero() {
                 text-[#C1DDDB]
               "
             >
-              {language === "zh"
-                ? "Jiangsu Cultural Journey"
-                : "水韵江苏"}
+              {language === "zh" ? BRAND_NAME.en : BRAND_NAME.zh}
             </p>
 
             {/* 宣传语 */}
@@ -180,9 +177,7 @@ export function Hero() {
                 text-[#EAF1F9]
               "
             >
-              {language === "zh"
-                ? "一水贯十三城，一城一故事。"
-                : "Explore Jiangsu through water, cities and stories."}
+              {BRAND_SLOGAN[language]}
             </p>
 
             {/* 补充说明 */}

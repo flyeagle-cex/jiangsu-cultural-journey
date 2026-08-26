@@ -1,3 +1,4 @@
+import { BRAND_NAME } from "@/data/brand";
 import { CITY_SECTION_LABELS, CITY_SECTION_ORDER, type BilingualText, type CitySectionId } from "@/types/city";
 
 export type ShuiLingMode = "welcome" | "guide" | "assistant";
@@ -29,7 +30,7 @@ export const SHUILING_ASSETS: ShuiLingAssets = {
 
 export const SHUILING_COPY = {
   name: { zh: "水灵 · 江苏数字文化向导", en: "Shuiling · Jiangsu Cultural Guide" },
-  welcomeTitle: { zh: "欢迎来到水韵江苏", en: "Welcome to Jiangsu Cultural Journey" },
+  welcomeTitle: { zh: `欢迎来到${BRAND_NAME.zh}`, en: `Welcome to ${BRAND_NAME.en}` },
   welcomeBody: {
     zh: "我是水灵，让我陪你一起游历江苏十三市。",
     en: "I'm Shuiling. Let me guide you through Jiangsu's thirteen cities.",

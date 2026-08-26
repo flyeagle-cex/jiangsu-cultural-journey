@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 
 import CreativeImageViewer from "@/components/CreativeImageViewer";
 import { useLanguage } from "@/context/LanguageContext";
+import { BRAND_NAME } from "@/data/brand";
 import {
   creativeCategoryLabels,
   creativeThemeLabels,
@@ -14,7 +15,7 @@ import type { CreativeAsset, CreativeProject } from "@/types/creative";
 
 function CreativeDetailNotFound({ language }: { language: Language }) {
   useEffect(() => {
-    document.title = language === "zh" ? "未找到文创作品｜水韵江苏" : "Creative Project Not Found | Jiangsu Cultural Journey";
+    document.title = `${language === "zh" ? "未找到文创作品" : "Creative Project Not Found"}｜${BRAND_NAME[language]}`;
   }, [language]);
 
   return (
@@ -112,7 +113,7 @@ export default function CreativeDetailPage() {
 
   useEffect(() => {
     if (project) {
-      document.title = `${project.name[language]}｜${language === "zh" ? "水韵江苏" : "Jiangsu Cultural Journey"}`;
+      document.title = `${project.name[language]}｜${BRAND_NAME[language]}`;
     }
   }, [language, project]);
 

@@ -11,6 +11,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useLanguage } from "@/context/LanguageContext";
+import { BRAND_NAME, BRAND_NAME_EN_UPPER } from "@/data/brand";
 
 const navItems = [
   { to: "/#explore", zh: "探索", en: "Explore" },
@@ -114,9 +115,7 @@ export function Navbar() {
                 sm:text-base
               "
             >
-              {language === "zh"
-                ? "水韵江苏"
-                : "Jiangsu Cultural Journey"}
+              {BRAND_NAME[language]}
             </span>
 
             <span
@@ -127,9 +126,7 @@ export function Navbar() {
                 text-[#B3C6BB]
               "
             >
-              {language === "zh"
-                ? "JIANGSU CULTURAL JOURNEY"
-                : "水韵江苏"}
+              {language === "zh" ? BRAND_NAME_EN_UPPER : BRAND_NAME.zh}
             </span>
           </span>
         </Link>
@@ -229,9 +226,7 @@ export function Navbar() {
                   text-[#F2F5F3]
                 "
               >
-                {language === "zh"
-                  ? "水韵江苏"
-                  : "Jiangsu Journey"}
+                {BRAND_NAME[language]}
               </SheetTitle>
 
               {/* 移动端导航 */}

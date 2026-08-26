@@ -9,6 +9,7 @@ import { CityHero } from "@/components/CityHero";
 import { CityJourneyNav } from "@/components/CityJourneyNav";
 import { Footer } from "@/components/Footer";
 import { useLanguage } from "@/context/LanguageContext";
+import { BRAND_NAME } from "@/data/brand";
 import { getCityBySlug } from "@/data/cities";
 import { setDocumentMeta } from "@/lib/document-meta";
 import { NotFoundPage } from "@/pages/NotFoundPage";
@@ -22,7 +23,7 @@ export default function CityPage() {
   useEffect(() => {
     if (!city) return;
     setDocumentMeta({
-      title: `${city.name[language]} · ${language === "zh" ? "水韵江苏" : "Jiangsu Cultural Journey"}`,
+      title: `${city.name[language]} · ${BRAND_NAME[language]}`,
       description: resolveText(city.summary, language),
     });
   }, [city, language]);
