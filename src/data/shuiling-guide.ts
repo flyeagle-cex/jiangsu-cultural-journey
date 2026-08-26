@@ -85,12 +85,9 @@ export const FUTURE_GUIDE_ACTIONS: ShuiLingGuideAction[] = [
   },
   {
     id: "favorites",
-    kind: "coming-soon",
+    kind: "navigate",
     label: { zh: "我的收藏", en: "My Favorites" },
-    status: {
-      zh: "登录与收藏功能即将开放。",
-      en: "Sign-in and favorites are coming soon.",
-    },
+    target: "/user",
   },
 ];
 

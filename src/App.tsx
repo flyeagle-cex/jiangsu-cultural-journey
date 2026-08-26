@@ -13,6 +13,7 @@ import type { CitySlug } from "@/types/city";
 const CityPage = lazy(() => import("@/pages/CityPage"));
 const CreativeCenterPage = lazy(() => import("@/pages/CreativeCenterPage"));
 const CreativeDetailPage = lazy(() => import("@/pages/CreativeDetailPage"));
+const UserCenterPage = lazy(() => import("@/pages/UserCenterPage"));
 const ShuiLingGuide = lazy(() =>
   import("@/components/ShuiLingGuide").then((module) => ({ default: module.ShuiLingGuide })),
 );
@@ -50,6 +51,21 @@ function CreativeRouteLoading() {
     >
       <p className="border-y border-[#C1DDDB]/30 px-10 py-8 text-sm text-[#C1DDDB]" role="status">
         {language === "zh" ? "正在载入文创档案…" : "Loading the creative archive…"}
+      </p>
+    </main>
+  );
+}
+
+function UserRouteLoading() {
+  const { language } = useLanguage();
+
+  return (
+    <main
+      className="grid min-h-screen place-items-center bg-[#5E6C82] px-6 pt-16 text-[#EAF1F9]"
+      id="main-content"
+    >
+      <p className="border-y border-[#C1DDDB]/30 px-10 py-8 text-sm text-[#C1DDDB]" role="status">
+        {language === "zh" ? "正在载入我的水韵…" : "Loading My Jiangsu Journey…"}
       </p>
     </main>
   );
@@ -98,6 +114,14 @@ export default function App() {
           element={
             <Suspense fallback={<CreativeRouteLoading />}>
               <CreativeDetailPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/user"
+          element={
+            <Suspense fallback={<UserRouteLoading />}>
+              <UserCenterPage />
             </Suspense>
           }
         />

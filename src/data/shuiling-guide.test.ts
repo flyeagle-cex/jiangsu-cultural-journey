@@ -30,4 +30,13 @@ describe("Shuiling guide configuration", () => {
       CITY_SECTION_ORDER.map((sectionId) => `#city-${sectionId}`),
     );
   });
+
+  it("routes the existing favorites action to the local User Center", () => {
+    const favoritesAction = FUTURE_GUIDE_ACTIONS.find((action) => action.id === "favorites");
+
+    expect(favoritesAction).toMatchObject({
+      kind: "navigate",
+      target: "/user",
+    });
+  });
 });

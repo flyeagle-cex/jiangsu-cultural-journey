@@ -19,6 +19,7 @@ const navItems = [
   { to: "/#heritage", zh: "非遗", en: "Heritage" },
   { to: "/#food", zh: "美食", en: "Food" },
   { to: "/creative", zh: "文创中心", en: "Creative" },
+  { to: "/user", zh: "用户中心", en: "My Journey" },
   { to: "/#about", zh: "关于", en: "About" },
 ] as const;
 
@@ -184,7 +185,7 @@ export function Navbar() {
         </div>
 
         {/* 移动端菜单 */}
-        <div className="lg:hidden">
+        <div className="xl:hidden">
           <Sheet>
             <SheetTrigger asChild>
               <Button
