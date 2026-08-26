@@ -7,12 +7,19 @@ import { requestShuiLingAnswer, ShuiLingApiError } from "@/assistant/api";
 import type { ShuiLingChatErrorCode, ShuiLingChatResponse } from "@/assistant/types";
 import { CreativeRecommendationBlock } from "@/components/CreativeRecommendationCard";
 import { ShuiLingMark } from "@/components/ShuiLingMark";
+import { ShuiLingSavedItemsCard } from "@/components/ShuiLingSavedItemsCard";
 import { useLanguage } from "@/context/LanguageContext";
+import { useSavedItems } from "@/context/UserSavedStateContext";
 import { cityIdentityBySlug } from "@/data/city-manifest";
 import {
   isCreativeManifestLookup,
   recommendCreativeProjects,
 } from "@/lib/creative-recommendation";
+import {
+  buildSavedStateResult,
+  detectSavedStateIntent,
+  type ResolvedSavedStateIntent,
+} from "@/lib/shuiling-saved-state";
 import { searchKnowledge } from "@/rag/retrieval";
 import type {
   KnowledgeSection,
@@ -148,8 +155,10 @@ export function ShuiLingRetrievalPanel({
   const [response, setResponse] = useState<RetrievalResponse | null>(null);
   const [assistantResponse, setAssistantResponse] = useState<ShuiLingChatResponse | null>(null);
   const [assistantError, setAssistantError] = useState<ShuiLingChatErrorCode | null>(null);
+  const [savedStateIntent, setSavedStateIntent] = useState<ResolvedSavedStateIntent | null>(null);
   const [phase, setPhase] = useState<AssistantPhase>("idle");
   const [error, setError] = useState(false);
+  const { favoriteCities, favoriteCreativeProjects } = useSavedItems();
   const copy = COPY[language];
   const currentCity = citySlug ? cityIdentityBySlug[citySlug] : undefined;
   const contextLabel = currentCity
@@ -164,7 +173,7 @@ export function ShuiLingRetrievalPanel({
   }, [copy.results, language, response]);
 
   const creativeRecommendations = useMemo(() => {
-    if (!submittedQuestion || phase === "idle" || phase === "retrieving") return [];
+    if (savedStateIntent || !submittedQuestion || phase === "idle" || phase === "retrieving") return [];
     const manifestLookup = isCreativeManifestLookup(submittedQuestion);
     if (assistantResponse?.insufficientEvidence && !manifestLookup) return [];
     return recommendCreativeProjects({
@@ -172,7 +181,18 @@ export function ShuiLingRetrievalPanel({
       retrievalResults: response?.results ?? [],
       currentCity: citySlug,
     });
-  }, [assistantResponse?.insufficientEvidence, citySlug, phase, response?.results, submittedQuestion]);
+  }, [assistantResponse?.insufficientEvidence, citySlug, phase, response?.results, savedStateIntent, submittedQuestion]);
+
+  const savedStateResult = useMemo(
+    () =>
+      savedStateIntent
+        ? buildSavedStateResult(savedStateIntent, {
+            favoriteCities,
+            favoriteCreativeProjects,
+          })
+        : null,
+    [favoriteCities, favoriteCreativeProjects, savedStateIntent],
+  );
 
   useEffect(() => {
     requestControllerRef.current?.abort();
@@ -182,6 +202,7 @@ export function ShuiLingRetrievalPanel({
     setResponse(null);
     setAssistantResponse(null);
     setAssistantError(null);
+    setSavedStateIntent(null);
     setPhase("idle");
     setError(false);
   }, [citySlug]);
@@ -211,17 +232,25 @@ export function ShuiLingRetrievalPanel({
     if (!question) return;
 
     requestControllerRef.current?.abort();
-    const controller = new AbortController();
-    requestControllerRef.current = controller;
     const requestId = requestIdRef.current + 1;
     requestIdRef.current = requestId;
 
-    setPhase("retrieving");
     setError(false);
     setSubmittedQuestion(question);
     setResponse(null);
     setAssistantResponse(null);
     setAssistantError(null);
+    const savedIntent = detectSavedStateIntent(question);
+    setSavedStateIntent(savedIntent);
+    if (savedIntent) {
+      requestControllerRef.current = null;
+      setPhase("answered");
+      return;
+    }
+
+    const controller = new AbortController();
+    requestControllerRef.current = controller;
+    setPhase("retrieving");
     try {
       const retrieval = await searchKnowledge(question, { currentCity: citySlug, topK: 5 });
       if (controller.signal.aborted || requestId !== requestIdRef.current) return;
@@ -435,6 +464,14 @@ export function ShuiLingRetrievalPanel({
                             : copy.retrievalOnly}
                         </p>
                       </div>
+                    )}
+
+                    {savedStateResult && (
+                      <ShuiLingSavedItemsCard
+                        language={language}
+                        onNavigate={() => onOpenChange(false)}
+                        result={savedStateResult}
+                      />
                     )}
 
                     <CreativeRecommendationBlock
