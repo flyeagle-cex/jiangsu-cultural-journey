@@ -57,6 +57,8 @@ describe("User Center page", () => {
     });
 
     expect(html).toContain("我的灵舟之旅");
+    expect(html).toContain("我的兴趣主题");
+    expect(html).toContain("选择你更感兴趣的文化主题");
     expect(html).toContain('data-city-ambient="user"');
     expect(html).toContain('data-skyline="jiangsu-journey"');
     expect(html).toContain("运河桥、塔影与江南水岸");
@@ -64,7 +66,12 @@ describe("User Center page", () => {
     expect(html).toContain("还没有收藏文创作品。");
     expect(html).toContain('href="/#cities"');
     expect(html).toContain('href="/creative"');
-    expect(html).toContain("收藏仅保存在当前浏览器中，不会上传个人信息。");
+    expect(html).toContain("收藏与兴趣偏好仅保存在当前浏览器中，不会上传个人信息。");
+    const document = new DOMParser().parseFromString(html, "text/html");
+    const interestButtons = document.querySelectorAll("[data-interest]");
+    expect(interestButtons).toHaveLength(5);
+    expect([...interestButtons].every((button) => button.getAttribute("aria-pressed") === "false"))
+      .toBe(true);
   });
 
   it("renders saved cities in canonical order with real media and correct links", () => {
@@ -101,18 +108,33 @@ describe("User Center page", () => {
 
   it("renders the English labels and browser-only privacy notice", () => {
     const html = renderUserCenter("en", {
-      version: 1,
+      version: 2,
       favoriteCities: [],
       favoriteCreativeProjects: [],
+      interests: ["history", "food"],
     });
 
     expect(html).toContain("My Shuiling Journey");
+    expect(html).toContain("My Interests");
+    expect(html).toContain("Nature");
+    expect(html).toContain("History &amp; Culture");
+    expect(html).toContain("Living Heritage");
+    expect(html).toContain("Local Food");
+    expect(html).toContain("Grand Canal &amp; Waterways");
+    expect(html).toContain("Clear Interests");
     expect(html).toContain("Saved Cities");
     expect(html).toContain("Saved Creative Works");
     expect(html).toContain("No cities saved yet.");
     expect(html).toContain("No creative works saved yet.");
     expect(html).toContain(
-      "Saved items stay in this browser. No personal information is uploaded.",
+      "Saved items and interests stay in this browser. No personal information is uploaded.",
     );
+    const document = new DOMParser().parseFromString(html, "text/html");
+    expect(document.querySelector('[data-interest="history"]')?.getAttribute("aria-pressed"))
+      .toBe("true");
+    expect(document.querySelector('[data-interest="food"]')?.getAttribute("aria-pressed"))
+      .toBe("true");
+    expect(document.querySelector('[data-interest="nature"]')?.getAttribute("aria-pressed"))
+      .toBe("false");
   });
 });

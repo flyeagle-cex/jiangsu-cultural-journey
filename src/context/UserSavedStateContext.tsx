@@ -11,26 +11,34 @@ import {
 import {
   DEFAULT_USER_SAVED_STATE,
   USER_SAVED_STATE_KEY,
+  clearJourneyInterests,
   isFavoriteCity,
   isFavoriteCreativeProject,
+  isJourneyInterestSelected,
   readUserSavedState,
   toggleFavoriteCity,
   toggleFavoriteCreativeProject,
+  toggleJourneyInterest,
   writeUserSavedState,
   type UserSavedStateStorage,
 } from "@/lib/user-saved-state";
 import type { CitySlug } from "@/types/city";
 import type { CreativeSlug } from "@/types/creative";
+import type { JourneyInterest } from "@/types/user-preferences";
 import type { UserSavedState } from "@/types/user-saved-state";
 
 type UserSavedStateContextValue = {
   favoriteCities: CitySlug[];
   favoriteCreativeProjects: CreativeSlug[];
+  interests: JourneyInterest[];
   toggleCity: (slug: CitySlug) => void;
   toggleCreative: (slug: CreativeSlug) => void;
+  toggleInterest: (interest: JourneyInterest) => void;
   clearAll: () => void;
+  clearInterests: () => void;
   isCityFavorite: (slug: CitySlug) => boolean;
   isCreativeFavorite: (slug: CreativeSlug) => boolean;
+  isInterestSelected: (interest: JourneyInterest) => boolean;
 };
 
 type UserSavedStateProviderProps = {
@@ -45,6 +53,7 @@ function createDefaultState(): UserSavedState {
     ...DEFAULT_USER_SAVED_STATE,
     favoriteCities: [],
     favoriteCreativeProjects: [],
+    interests: [],
   };
 }
 
@@ -76,7 +85,15 @@ export function UserSavedStateProvider({ children, storage }: UserSavedStateProv
     setState((currentState) => toggleFavoriteCreativeProject(currentState, slug));
   }, []);
 
+  const toggleInterest = useCallback((interest: JourneyInterest) => {
+    setState((currentState) => toggleJourneyInterest(currentState, interest));
+  }, []);
+
   const clearAll = useCallback(() => setState(createDefaultState()), []);
+  const clearInterests = useCallback(
+    () => setState((currentState) => clearJourneyInterests(currentState)),
+    [],
+  );
 
   const isCityFavorite = useCallback(
     (slug: CitySlug) => isFavoriteCity(state, slug),
@@ -88,17 +105,36 @@ export function UserSavedStateProvider({ children, storage }: UserSavedStateProv
     [state],
   );
 
+  const isInterestSelected = useCallback(
+    (interest: JourneyInterest) => isJourneyInterestSelected(state, interest),
+    [state],
+  );
+
   const value = useMemo<UserSavedStateContextValue>(
     () => ({
       favoriteCities: state.favoriteCities,
       favoriteCreativeProjects: state.favoriteCreativeProjects,
+      interests: state.interests,
       toggleCity,
       toggleCreative,
+      toggleInterest,
       clearAll,
+      clearInterests,
       isCityFavorite,
       isCreativeFavorite,
+      isInterestSelected,
     }),
-    [clearAll, isCityFavorite, isCreativeFavorite, state, toggleCity, toggleCreative],
+    [
+      clearAll,
+      clearInterests,
+      isCityFavorite,
+      isCreativeFavorite,
+      isInterestSelected,
+      state,
+      toggleCity,
+      toggleCreative,
+      toggleInterest,
+    ],
   );
 
   return <UserSavedStateContext.Provider value={value}>{children}</UserSavedStateContext.Provider>;
@@ -111,4 +147,3 @@ export function useSavedItems() {
   }
   return context;
 }
-

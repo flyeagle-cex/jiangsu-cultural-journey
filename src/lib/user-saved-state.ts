@@ -2,14 +2,20 @@ import { cityManifest } from "@/data/city-manifest";
 import { getPublishedCreativeProjects } from "@/lib/creative";
 import type { CitySlug } from "@/types/city";
 import type { CreativeProject, CreativeSlug } from "@/types/creative";
+import {
+  JOURNEY_INTEREST_ORDER,
+  type JourneyInterest,
+} from "@/types/user-preferences";
 import type { UserSavedState } from "@/types/user-saved-state";
 
 export const USER_SAVED_STATE_KEY = "jiangsu-cultural-journey:user-saved-state";
+export const USER_SAVED_STATE_VERSION = 2;
 
 export const DEFAULT_USER_SAVED_STATE: UserSavedState = {
-  version: 1,
+  version: USER_SAVED_STATE_VERSION,
   favoriteCities: [],
   favoriteCreativeProjects: [],
+  interests: [],
 };
 
 export type UserSavedStateStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
@@ -19,9 +25,10 @@ const publishedCreativeProjects = getPublishedCreativeProjects();
 
 function createDefaultState(): UserSavedState {
   return {
-    version: 1,
+    version: USER_SAVED_STATE_VERSION,
     favoriteCities: [],
     favoriteCreativeProjects: [],
+    interests: [],
   };
 }
 
@@ -69,23 +76,60 @@ function normalizeCreativeProjects(
   });
 }
 
+function isJourneyInterest(value: unknown): value is JourneyInterest {
+  return JOURNEY_INTEREST_ORDER.includes(value as JourneyInterest);
+}
+
+function normalizeInterests(values: readonly unknown[]): JourneyInterest[] {
+  const selectedInterests = new Set(values.filter(isJourneyInterest));
+  return JOURNEY_INTEREST_ORDER.filter((interest) => selectedInterests.has(interest));
+}
+
+function containsFutureVersion(storage: UserSavedStateStorage): boolean {
+  try {
+    const currentValue = storage.getItem(USER_SAVED_STATE_KEY);
+    if (currentValue === null) return false;
+    const parsedValue: unknown = JSON.parse(currentValue);
+    return (
+      isRecord(parsedValue) &&
+      typeof parsedValue.version === "number" &&
+      parsedValue.version > USER_SAVED_STATE_VERSION
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function parseUserSavedState(
   value: unknown,
   projects: readonly CreativeProject[] = publishedCreativeProjects,
 ): UserSavedState {
+  if (!isRecord(value)) {
+    return createDefaultState();
+  }
+
   if (
-    !isRecord(value) ||
-    value.version !== 1 ||
     !Array.isArray(value.favoriteCities) ||
     !Array.isArray(value.favoriteCreativeProjects)
   ) {
     return createDefaultState();
   }
+  const favoriteCities = value.favoriteCities;
+  const favoriteCreativeProjects = value.favoriteCreativeProjects;
+
+  const interests =
+    value.version === 1
+      ? []
+      : value.version === USER_SAVED_STATE_VERSION && Array.isArray(value.interests)
+        ? normalizeInterests(value.interests)
+        : null;
+  if (interests === null) return createDefaultState();
 
   return {
-    version: 1,
-    favoriteCities: normalizeCities(value.favoriteCities),
-    favoriteCreativeProjects: normalizeCreativeProjects(value.favoriteCreativeProjects, projects),
+    version: USER_SAVED_STATE_VERSION,
+    favoriteCities: normalizeCities(favoriteCities),
+    favoriteCreativeProjects: normalizeCreativeProjects(favoriteCreativeProjects, projects),
+    interests,
   };
 }
 
@@ -109,6 +153,7 @@ export function writeUserSavedState(
   if (!storage) return false;
 
   try {
+    if (containsFutureVersion(storage)) return false;
     storage.setItem(USER_SAVED_STATE_KEY, JSON.stringify(parseUserSavedState(state)));
     return true;
   } catch {
@@ -157,4 +202,28 @@ export function isFavoriteCreativeProject(
   slug: CreativeSlug,
 ): boolean {
   return state.favoriteCreativeProjects.includes(slug);
+}
+
+export function toggleJourneyInterest(
+  state: UserSavedState,
+  interest: JourneyInterest,
+): UserSavedState {
+  const interests = state.interests.includes(interest)
+    ? state.interests.filter((selectedInterest) => selectedInterest !== interest)
+    : [...state.interests, interest];
+
+  return parseUserSavedState({ ...state, interests });
+}
+
+export function clearJourneyInterests(state: UserSavedState): UserSavedState {
+  return state.interests.length === 0
+    ? state
+    : parseUserSavedState({ ...state, interests: [] });
+}
+
+export function isJourneyInterestSelected(
+  state: UserSavedState,
+  interest: JourneyInterest,
+): boolean {
+  return state.interests.includes(interest);
 }

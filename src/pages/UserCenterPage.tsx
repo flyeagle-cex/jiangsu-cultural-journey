@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import { CityAmbientLayer } from "@/components/CityAmbientLayer";
 import { Footer } from "@/components/Footer";
+import { UserInterestSelector } from "@/components/UserInterestSelector";
 import { useLanguage } from "@/context/LanguageContext";
 import { useSavedItems } from "@/context/UserSavedStateContext";
 import { BRAND_NAME } from "@/data/brand";
@@ -64,13 +65,15 @@ export default function UserCenterPage() {
             </p>
             <p className="mt-5 max-w-2xl border-t border-[#C1DDDB]/30 pt-4 text-sm leading-6 text-[#C1DDDB]">
               {language === "zh"
-                ? "这里没有账户或云端同步，收藏内容仅保存在当前浏览器中。"
-                : "There is no account or cloud sync. Saved items are stored only in this browser."}
+                ? "这里没有账户或云端同步，收藏与兴趣偏好仅保存在当前浏览器中。"
+                : "There is no account or cloud sync. Saved items and interests are stored only in this browser."}
             </p>
           </div>
         </header>
 
         <div className="relative z-10 mx-auto max-w-[1240px] px-4 pb-20 sm:px-6 lg:px-10">
+          <UserInterestSelector />
+
           <section aria-labelledby="saved-cities-heading" className="border-b border-[#C1DDDB]/28 py-10 sm:py-12">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
@@ -271,8 +274,8 @@ export default function UserCenterPage() {
           <aside className="py-9 text-sm leading-6 text-[#C1DDDB]" aria-label={language === "zh" ? "收藏说明" : "Saved items notice"}>
             <p>
               {language === "zh"
-                ? "收藏仅保存在当前浏览器中，不会上传个人信息。"
-                : "Saved items stay in this browser. No personal information is uploaded."}
+                ? "收藏与兴趣偏好仅保存在当前浏览器中，不会上传个人信息。"
+                : "Saved items and interests stay in this browser. No personal information is uploaded."}
             </p>
           </aside>
         </div>

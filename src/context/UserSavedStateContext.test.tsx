@@ -43,7 +43,7 @@ function createMemoryStorage(initialValue?: string) {
 
 function SavedStateProbe({ onRender }: { onRender: (value: string) => void }) {
   const savedItems = useSavedItems();
-  const value = `${savedItems.favoriteCities.join(",")}|${savedItems.favoriteCreativeProjects.join(",")}`;
+  const value = `${savedItems.favoriteCities.join(",")}|${savedItems.favoriteCreativeProjects.join(",")}|${savedItems.interests.join(",")}`;
 
   useEffect(() => {
     onRender(value);
@@ -62,7 +62,16 @@ function SavedStateProbe({ onRender }: { onRender: (value: string) => void }) {
         Toggle creative
       </button>
       <button onClick={savedItems.clearAll} type="button">
-        Clear
+        Clear all
+      </button>
+      <button onClick={() => savedItems.toggleInterest("history")} type="button">
+        Toggle history
+      </button>
+      <button onClick={() => savedItems.toggleInterest("food")} type="button">
+        Toggle food
+      </button>
+      <button onClick={savedItems.clearInterests} type="button">
+        Clear interests
       </button>
     </div>
   );
@@ -100,7 +109,7 @@ describe("UserSavedStateProvider", () => {
       );
     });
 
-    expect(container.querySelector("output")?.textContent).toBe("suzhou|");
+    expect(container.querySelector("output")?.textContent).toBe("suzhou||");
     expect(memory.writes).toBeGreaterThan(0);
 
     const buttons = container.querySelectorAll("button");
@@ -108,16 +117,46 @@ describe("UserSavedStateProvider", () => {
     await act(async () => buttons[1].click());
 
     expect(container.querySelector("output")?.textContent).toBe(
-      "nanjing,suzhou|water-spirit-global-voyage",
+      "nanjing,suzhou|water-spirit-global-voyage|",
     );
     expect(JSON.parse(memory.value ?? "null")).toEqual({
-      version: 1,
+      version: 2,
       favoriteCities: ["nanjing", "suzhou"],
       favoriteCreativeProjects: ["water-spirit-global-voyage"],
+      interests: [],
     });
-    expect(renders.at(-1)).toBe("nanjing,suzhou|water-spirit-global-voyage");
+    expect(renders.at(-1)).toBe("nanjing,suzhou|water-spirit-global-voyage|");
+
+    await act(async () => buttons[3].click());
+    expect(container.querySelector("output")?.textContent).toBe(
+      "nanjing,suzhou|water-spirit-global-voyage|history",
+    );
+    expect(buttons[3].textContent).toBe("Toggle history");
+
+    await act(async () => buttons[3].click());
+    expect(container.querySelector("output")?.textContent).toBe(
+      "nanjing,suzhou|water-spirit-global-voyage|",
+    );
+
+    await act(async () => buttons[3].click());
+
+    await act(async () => buttons[4].click());
+    expect(container.querySelector("output")?.textContent).toBe(
+      "nanjing,suzhou|water-spirit-global-voyage|history,food",
+    );
+
+    await act(async () => buttons[5].click());
+    expect(container.querySelector("output")?.textContent).toBe(
+      "nanjing,suzhou|water-spirit-global-voyage|",
+    );
+    expect(JSON.parse(memory.value ?? "null")).toMatchObject({
+      version: 2,
+      favoriteCities: ["nanjing", "suzhou"],
+      favoriteCreativeProjects: ["water-spirit-global-voyage"],
+      interests: [],
+    });
 
     await act(async () => buttons[2].click());
-    expect(container.querySelector("output")?.textContent).toBe("|");
+    expect(container.querySelector("output")?.textContent).toBe("||");
   });
 });
