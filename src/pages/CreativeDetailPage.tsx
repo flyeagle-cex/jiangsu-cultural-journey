@@ -112,7 +112,8 @@ export default function CreativeDetailPage() {
   const { language } = useLanguage();
   const { isCreativeFavorite, toggleCreative } = useSavedItems();
   const { slug } = useParams();
-  const project = getCreativeProjectBySlug(slug);
+  const resolvedProject = getCreativeProjectBySlug(slug);
+  const project = resolvedProject?.status === "published" ? resolvedProject : undefined;
 
   useEffect(() => {
     if (project) {

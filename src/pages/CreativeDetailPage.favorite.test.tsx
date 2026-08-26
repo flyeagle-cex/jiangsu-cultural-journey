@@ -104,14 +104,18 @@ describe("CreativeDetailPage favorite action", () => {
     expect(memory.read().favoriteCreativeProjects).toEqual([]);
   });
 
-  it("does not expose a favorite action when a project is a draft", () => {
+  it("treats a draft project as unavailable without exposing its content", () => {
     const project = creativeManifest[0];
     const originalStatus = project.status;
     project.status = "draft";
 
     try {
       mountDetail(createMemoryStorage().storage);
-      expect(container?.textContent).toContain("一水灵韵，万国舟行");
+      expect(container?.textContent).toContain("未找到这件文创作品");
+      expect(container?.textContent).toContain("返回文创中心");
+      expect(container?.textContent).not.toContain("一水灵韵，万国舟行");
+      expect(container?.textContent).not.toContain("作品状态");
+      expect(container?.querySelector('img[src*="cover-overview.webp"]')).toBeNull();
       expect(container?.querySelector("[data-favorite-state]")).toBeNull();
     } finally {
       project.status = originalStatus;
