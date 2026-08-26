@@ -3,7 +3,9 @@ import { ArrowLeft } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 
 import CreativeImageViewer from "@/components/CreativeImageViewer";
+import { FavoriteButton } from "@/components/FavoriteButton";
 import { useLanguage } from "@/context/LanguageContext";
+import { useSavedItems } from "@/context/UserSavedStateContext";
 import { BRAND_NAME } from "@/data/brand";
 import {
   creativeCategoryLabels,
@@ -108,6 +110,7 @@ function ArtworkFigure({
 
 export default function CreativeDetailPage() {
   const { language } = useLanguage();
+  const { isCreativeFavorite, toggleCreative } = useSavedItems();
   const { slug } = useParams();
   const project = getCreativeProjectBySlug(slug);
 
@@ -158,9 +161,30 @@ export default function CreativeDetailPage() {
               </p>
             )}
 
-            <p className="mt-7 text-sm leading-7 text-[#EAC459]">
-              {project.themes.map((theme) => creativeThemeLabels[theme][language]).join(" · ")}
-            </p>
+            <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-4">
+              <p className="text-sm leading-7 text-[#EAC459]">
+                {project.themes.map((theme) => creativeThemeLabels[theme][language]).join(" · ")}
+              </p>
+              {project.status === "published" && (
+                <FavoriteButton
+                  active={isCreativeFavorite(project.slug)}
+                  activeAriaLabel={
+                    language === "zh"
+                      ? `取消收藏作品《${project.name.zh}》`
+                      : `Remove ${project.name.en} from saved creative works`
+                  }
+                  activeLabel={language === "zh" ? "已收藏" : "Saved"}
+                  ariaLabel={
+                    language === "zh"
+                      ? `收藏作品《${project.name.zh}》`
+                      : `Save ${project.name.en}`
+                  }
+                  compact
+                  label={language === "zh" ? "收藏作品" : "Save Work"}
+                  onToggle={() => toggleCreative(project.slug)}
+                />
+              )}
+            </div>
             <div className="mt-8 max-w-md">
               <ProjectMetadata language={language} project={project} />
             </div>

@@ -2,15 +2,19 @@ import { motion, useReducedMotion } from "framer-motion";
 import { ArrowDown, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { FavoriteButton } from "@/components/FavoriteButton";
 import { useLanguage } from "@/context/LanguageContext";
+import { useSavedItems } from "@/context/UserSavedStateContext";
 import { getCityHeroVisual } from "@/data/city-media";
 import type { City } from "@/types/city";
 import { resolveText } from "@/types/city";
 
 export function CityHero({ city }: { city: City }) {
   const { language } = useLanguage();
+  const { isCityFavorite, toggleCity } = useSavedItems();
   const reduceMotion = useReducedMotion();
   const visual = getCityHeroVisual(city.slug);
+  const favorite = isCityFavorite(city.slug);
   const secondaryLanguage = language === "zh" ? "en" : "zh";
   const [longitude, latitude] = city.coordinates;
 
@@ -63,9 +67,24 @@ export function CityHero({ city }: { city: City }) {
             <p className="mt-5 font-display text-[clamp(1.55rem,3vw,2.8rem)] font-light leading-none tracking-[-0.025em] text-primary">
               {city.name[secondaryLanguage]}
             </p>
-            <p className="mt-8 text-lg font-semibold leading-8 text-[#f3f8fc] sm:text-xl">
-              {city.tagline[language]}
-            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+              <p className="text-lg font-semibold leading-8 text-[#f3f8fc] sm:text-xl">
+                {city.tagline[language]}
+              </p>
+              <FavoriteButton
+                active={favorite}
+                activeAriaLabel={
+                  language === "zh"
+                    ? `取消收藏${city.name.zh}`
+                    : `Remove ${city.name.en} from saved cities`
+                }
+                activeLabel={language === "zh" ? "已收藏" : "Saved"}
+                ariaLabel={language === "zh" ? `收藏${city.name.zh}` : `Save ${city.name.en}`}
+                compact
+                label={language === "zh" ? "收藏城市" : "Save City"}
+                onToggle={() => toggleCity(city.slug)}
+              />
+            </div>
             <p className="mt-4 max-w-[66ch] text-base leading-7 text-[#eef5fb]/[0.94] sm:text-lg sm:leading-8">
               {resolveText(city.summary, language)}
             </p>

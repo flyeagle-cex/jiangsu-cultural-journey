@@ -3,6 +3,7 @@ import { MemoryRouter, Route, Routes, matchRoutes } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
 import { LanguageProvider } from "@/context/LanguageContext";
+import { UserSavedStateProvider } from "@/context/UserSavedStateContext";
 import {
   CREATIVE_CENTER_PATH,
   CREATIVE_DETAIL_PATH,
@@ -14,7 +15,9 @@ import CreativeDetailPage from "@/pages/CreativeDetailPage";
 function renderAt(path: string, element: React.ReactNode) {
   return renderToStaticMarkup(
     <LanguageProvider>
-      <MemoryRouter initialEntries={[path]}>{element}</MemoryRouter>
+      <UserSavedStateProvider storage={null}>
+        <MemoryRouter initialEntries={[path]}>{element}</MemoryRouter>
+      </UserSavedStateProvider>
     </LanguageProvider>,
   );
 }
