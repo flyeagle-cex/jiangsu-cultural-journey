@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import { CityAmbientLayer } from "@/components/CityAmbientLayer";
 import { Footer } from "@/components/Footer";
+import { JourneyRecommendations } from "@/components/JourneyRecommendations";
 import { UserInterestSelector } from "@/components/UserInterestSelector";
 import { useLanguage } from "@/context/LanguageContext";
 import { useSavedItems } from "@/context/UserSavedStateContext";
@@ -73,6 +74,7 @@ export default function UserCenterPage() {
 
         <div className="relative z-10 mx-auto max-w-[1240px] px-4 pb-20 sm:px-6 lg:px-10">
           <UserInterestSelector />
+          <JourneyRecommendations />
 
           <section aria-labelledby="saved-cities-heading" className="border-b border-[#C1DDDB]/28 py-10 sm:py-12">
             <div className="flex flex-wrap items-end justify-between gap-3">
