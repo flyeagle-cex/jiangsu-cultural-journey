@@ -168,12 +168,13 @@ export function ShuiLingGuide({ citySlug, hidden = false, mode = "guide", onAskA
   }, [closePanel, hidden]);
 
   const announceComingSoon = (action: ShuiLingGuideAction) => {
-    if (action.id === "ask" && mode === "assistant" && onAskAI) {
-      closePanel(false);
-      onAskAI({ citySlug: city?.slug });
-      return;
-    }
     setStatus(action.status?.[language] ?? "");
+  };
+
+  const openAssistant = () => {
+    if (mode !== "assistant" || !onAskAI) return;
+    closePanel(false);
+    onAskAI({ citySlug: city?.slug });
   };
 
   const followAnchor = (action: ShuiLingGuideAction) => {
@@ -207,7 +208,11 @@ export function ShuiLingGuide({ citySlug, hidden = false, mode = "guide", onAskA
       <button
         className="shuiling-guide__action w-full text-left"
         key={action.id}
-        onClick={() => (action.kind === "anchor" ? followAnchor(action) : announceComingSoon(action))}
+        onClick={() => {
+          if (action.kind === "anchor") followAnchor(action);
+          else if (action.kind === "ask-ai") openAssistant();
+          else announceComingSoon(action);
+        }}
         type="button"
       >
         {content}

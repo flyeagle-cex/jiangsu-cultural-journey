@@ -5,7 +5,7 @@ export type ShuiLingMode = "welcome" | "guide" | "assistant";
 
 export type ShuiLingPageKind = "home" | "city" | "not-found";
 
-export type ShuiLingActionKind = "navigate" | "anchor" | "coming-soon";
+export type ShuiLingActionKind = "navigate" | "anchor" | "ask-ai" | "coming-soon";
 
 export type ShuiLingGuideAction = {
   id: string;
@@ -68,21 +68,17 @@ export const HOME_GUIDE_ACTIONS: ShuiLingGuideAction[] = [
   },
   {
     id: "ask",
-    kind: "coming-soon",
+    kind: "ask-ai",
     label: { zh: "问问水灵", en: "Ask Shuiling" },
-    status: {
-      zh: "下一阶段，我就可以回答你的江苏文化问题啦。",
-      en: "In the next stage, I'll be ready to answer your Jiangsu culture questions.",
-    },
   },
 ];
 
 export const FUTURE_GUIDE_ACTIONS: ShuiLingGuideAction[] = [
   {
     id: "creative",
-    kind: "coming-soon",
+    kind: "navigate",
     label: { zh: "文创中心", en: "Creative Center" },
-    status: { zh: "文创中心即将开放。", en: "The Creative Center is coming soon." },
+    target: "/creative",
   },
   {
     id: "favorites",

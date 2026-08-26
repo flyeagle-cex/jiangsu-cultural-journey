@@ -39,4 +39,26 @@ describe("Shuiling guide configuration", () => {
       target: "/user",
     });
   });
+
+  it("routes the active Creative Center action to its published page", () => {
+    const creativeAction = FUTURE_GUIDE_ACTIONS.find((action) => action.id === "creative");
+
+    expect(creativeAction).toMatchObject({
+      kind: "navigate",
+      target: "/creative",
+    });
+    expect(creativeAction?.status).toBeUndefined();
+  });
+
+  it("uses the formal ask-ai action without stale coming-soon copy", () => {
+    const askAction = HOME_GUIDE_ACTIONS.find((action) => action.id === "ask");
+    const serializedActions = JSON.stringify([...HOME_GUIDE_ACTIONS, ...FUTURE_GUIDE_ACTIONS]);
+
+    expect(askAction).toMatchObject({ kind: "ask-ai" });
+    expect(askAction?.status).toBeUndefined();
+    expect(serializedActions).not.toContain("下一阶段");
+    expect(serializedActions).not.toContain("next stage");
+    expect(serializedActions).not.toContain("即将开放");
+    expect(serializedActions).not.toContain("coming soon");
+  });
 });
